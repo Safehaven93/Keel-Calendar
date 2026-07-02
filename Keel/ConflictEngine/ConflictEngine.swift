@@ -15,12 +15,18 @@ enum ConflictEngine {
     ]
 
     static func conflictKind(between a: Event, and b: Event) -> ConflictKind? {
-        if a.startDate < b.endDate && b.startDate < a.endDate {
+        conflictKind(aStart: a.startDate, aEnd: a.endDate, bStart: b.startDate, bEnd: b.endDate)
+    }
+
+    /// Date-range form of `conflictKind`, usable without constructing `Event`
+    /// instances — e.g. when probing candidate reschedule slots.
+    static func conflictKind(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) -> ConflictKind? {
+        if aStart < bEnd && bStart < aEnd {
             return .hard
         }
-        let gap = a.startDate < b.startDate
-            ? b.startDate.timeIntervalSince(a.endDate)
-            : a.startDate.timeIntervalSince(b.endDate)
+        let gap = aStart < bStart
+            ? bStart.timeIntervalSince(aEnd)
+            : aStart.timeIntervalSince(bEnd)
         if gap >= 0 && gap < softConflictBuffer {
             return .soft
         }
