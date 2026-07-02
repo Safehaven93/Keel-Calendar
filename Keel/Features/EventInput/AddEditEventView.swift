@@ -83,7 +83,7 @@ struct AddEditEventView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
                         .foregroundStyle(.white)
-                        .background(viewModel.canSave ? Color.accentColor : Color.accentColor.opacity(0.4))
+                        .background(viewModel.canSave ? Color("AccentColor") : Color("AccentColor").opacity(0.4))
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
                 .disabled(!viewModel.canSave)
@@ -135,7 +135,7 @@ struct AddEditEventView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
                 .foregroundStyle(isSelected ? .white : Color("TextPrimary"))
-                .background(isSelected ? Color.accentColor : Color("Surface"))
+                .background(isSelected ? Color("AccentColor") : Color("Surface"))
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)

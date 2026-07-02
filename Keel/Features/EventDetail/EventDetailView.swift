@@ -25,6 +25,7 @@ struct EventDetailView: View {
                     HStack(spacing: 12) {
                         Button("Edit") { isEditing = true }
                             .buttonStyle(.bordered)
+                            .tint(Color("AccentColor"))
                             .frame(maxWidth: .infinity)
 
                         Button("Delete") {
@@ -50,13 +51,13 @@ struct EventDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(event.flexibility.label.uppercased())
                 .font(.caption.weight(.bold))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color("AccentColor"))
             Text(event.title)
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(Color("TextPrimary"))
             Text(event.startDate, format: .dateTime.weekday(.wide).month().day().hour().minute())
                 .font(.body)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color("AccentColor"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)

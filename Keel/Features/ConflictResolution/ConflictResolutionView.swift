@@ -45,7 +45,7 @@ struct ConflictResolutionView: View {
                 .foregroundStyle(Color("TextPrimary"))
             Button("Back to Agenda") { dismiss() }
                 .buttonStyle(.borderedProminent)
-                .tint(Color.accentColor)
+                .tint(Color("AccentColor"))
         }
     }
 
@@ -79,7 +79,7 @@ struct ConflictResolutionView: View {
             if showsTags {
                 Text(isKeepSide ? "KEEP" : "MOVE")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(isKeepSide ? Color.accentColor : Color("ConflictColor"))
+                    .foregroundStyle(isKeepSide ? Color("AccentColor") : Color("ConflictColor"))
             }
             Text(event.title)
                 .font(.body.weight(.semibold))
@@ -93,7 +93,7 @@ struct ConflictResolutionView: View {
         .background(showsTags && !isKeepSide ? Color("ConflictTint") : Color("Surface"))
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(showsTags && isKeepSide ? Color.accentColor : Color("Border"), lineWidth: showsTags && isKeepSide ? 2 : 1)
+                .stroke(showsTags && isKeepSide ? Color("AccentColor") : Color("Border"), lineWidth: showsTags && isKeepSide ? 2 : 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
@@ -110,7 +110,7 @@ struct ConflictResolutionView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
                     .foregroundStyle(.white)
-                    .background(Color.accentColor)
+                    .background(Color("AccentColor"))
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
 
@@ -123,8 +123,8 @@ struct ConflictResolutionView: View {
                     .font(.body.weight(.semibold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .foregroundStyle(Color.accentColor)
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.accentColor, lineWidth: 1.5))
+                    .foregroundStyle(Color("AccentColor"))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color("AccentColor"), lineWidth: 1.5))
             }
 
             if viewModel.recommendation.reasoning.count > 1 {

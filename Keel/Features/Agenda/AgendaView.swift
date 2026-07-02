@@ -67,7 +67,7 @@ struct AgendaView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 28)
                         .padding(.vertical, 14)
-                        .background(Capsule().fill(Color.accentColor))
+                        .background(Capsule().fill(Color("AccentColor")))
                         .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
                 }
                 .padding(.bottom, 24)
