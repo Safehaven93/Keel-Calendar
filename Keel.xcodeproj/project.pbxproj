@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		4B9FAE915E56989C87888882 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 730F916701ADEDCBE216EFA4 /* ContentView.swift */; };
 		B3BEFB5B3BB378CDF2BC27E6 /* KeelApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8722EF6B38F44C7CD3BC54 /* KeelApp.swift */; };
+		E43DE4D6043B71B527F69226 /* ConflictEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF39F69BA09EED179735114 /* ConflictEngine.swift */; };
+		DD113EA1356B1F2E53681808 /* ConflictSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BAFC70921B2AB9B14A8FAAD /* ConflictSignal.swift */; };
+		217AAB52B45D523F641E00CB /* Recommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16CBE8B5AD0518B7064832E /* Recommendation.swift */; };
+		8A6B95E8B8CC596B8B0A1662 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2C0FCA3AB4D999CB069A23 /* Event.swift */; };
+		1AE9E5CA0C8FFC4454140538 /* ConflictEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */; };
 		4530E5E2004F8453DB6AA24C /* KeelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2D46A1126177EDD0B99455 /* KeelTests.swift */; };
 		9C1B7E3CA2C50FB6B9DA9182 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F83DFFD665B82AAABFA3371 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -28,6 +33,11 @@
 		484A2D355CA32FF0E917CFD4 /* KeelTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KeelTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		730F916701ADEDCBE216EFA4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EC8722EF6B38F44C7CD3BC54 /* KeelApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeelApp.swift; sourceTree = "<group>"; };
+		1CF39F69BA09EED179735114 /* ConflictEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictEngine.swift; sourceTree = "<group>"; };
+		0BAFC70921B2AB9B14A8FAAD /* ConflictSignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictSignal.swift; sourceTree = "<group>"; };
+		F16CBE8B5AD0518B7064832E /* Recommendation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recommendation.swift; sourceTree = "<group>"; };
+		3A2C0FCA3AB4D999CB069A23 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictEngineTests.swift; sourceTree = "<group>"; };
 		3D2D46A1126177EDD0B99455 /* KeelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeelTests.swift; sourceTree = "<group>"; };
 		0F83DFFD665B82AAABFA3371 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -50,9 +60,29 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		32E2EDBDF0E7FBE077A7C7B5 /* ConflictEngine */ = {
+			isa = PBXGroup;
+			children = (
+				1CF39F69BA09EED179735114 /* ConflictEngine.swift */,
+				0BAFC70921B2AB9B14A8FAAD /* ConflictSignal.swift */,
+				F16CBE8B5AD0518B7064832E /* Recommendation.swift */,
+			);
+			path = ConflictEngine;
+			sourceTree = "<group>";
+		};
+		E744151133C1B43D16BF2841 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3A2C0FCA3AB4D999CB069A23 /* Event.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		4C086832CE36C385B1ECBCC8 /* Keel */ = {
 			isa = PBXGroup;
 			children = (
+				32E2EDBDF0E7FBE077A7C7B5 /* ConflictEngine */,
+				E744151133C1B43D16BF2841 /* Models */,
 				730F916701ADEDCBE216EFA4 /* ContentView.swift */,
 				EC8722EF6B38F44C7CD3BC54 /* KeelApp.swift */,
 				0F83DFFD665B82AAABFA3371 /* Assets.xcassets */,
@@ -63,6 +93,7 @@
 		68DE481A39400A49757EB7B7 /* KeelTests */ = {
 			isa = PBXGroup;
 			children = (
+				DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */,
 				3D2D46A1126177EDD0B99455 /* KeelTests.swift */,
 			);
 			path = KeelTests;
@@ -179,6 +210,10 @@
 			files = (
 				4B9FAE915E56989C87888882 /* ContentView.swift in Sources */,
 				B3BEFB5B3BB378CDF2BC27E6 /* KeelApp.swift in Sources */,
+				E43DE4D6043B71B527F69226 /* ConflictEngine.swift in Sources */,
+				DD113EA1356B1F2E53681808 /* ConflictSignal.swift in Sources */,
+				217AAB52B45D523F641E00CB /* Recommendation.swift in Sources */,
+				8A6B95E8B8CC596B8B0A1662 /* Event.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,6 +221,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AE9E5CA0C8FFC4454140538 /* ConflictEngineTests.swift in Sources */,
 				4530E5E2004F8453DB6AA24C /* KeelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
