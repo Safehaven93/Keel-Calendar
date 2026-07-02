@@ -1,0 +1,50 @@
+# TODO — Keel Build Roadmap
+
+Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
+
+## Phase 0 — Before writing app code
+- [ ] Finish 3 user conversations about scheduling pain points (Homework #3, due before Session 3)
+- [ ] Confirm project plan with team (Homework #3/4)
+- [ ] Run `DESIGN_PROMPT.md` through Claude Design → produce `DESIGN.md`
+- [ ] Review `DESIGN.md` + `SKILL.md` together — make sure the prioritization signals in the skill file match what research actually surfaced, not just the starting hypothesis
+
+## Phase 1 — Data synthesis (Session 5–6, parallel to app scaffolding)
+- [ ] Finish data synthesis / insight statements (Homework #5)
+- [ ] Revisit `SKILL.md` prioritization table — replace hypothesis signals with real ones from synthesis
+- [ ] Update persona in `CLAUDE.md` if research shifts who the primary user actually is
+
+## Phase 2 — Xcode project scaffolding
+- [ ] New SwiftUI + SwiftData project, iOS 17+ target
+- [ ] Set up MVVM folder structure (`Features/`, `Models/`, `ConflictEngine/`)
+- [ ] Basic `Event` SwiftData model (title, start, end, location, flexibility flag, notes)
+- [ ] Manual event entry flow (add/edit/delete) — no conflict logic yet, just CRUD
+
+## Phase 3 — Conflict engine (core differentiator — prioritize this over polish)
+- [ ] Overlap detection (literal time overlap)
+- [ ] Buffer/travel-time soft-conflict detection
+- [ ] Prioritization scoring using signals from `SKILL.md`
+- [ ] Explainability: surface *why* one event is recommended over another
+- [ ] Unit tests for the conflict engine — this is the piece most worth getting right
+
+## Phase 4 — Conflict UI
+- [ ] Conflict alert / inline warning when a new event collides with an existing one
+- [ ] Resolution screen: show both events, the recommendation, and the reasoning
+- [ ] User can override the recommendation (never auto-resolve silently)
+
+## Phase 5 — MVP polish (Session 7–8, Implementation)
+- [ ] Home/agenda view — what does the user see day-to-day
+- [ ] Empty states, onboarding (minimal — this is a prototype, not a launch)
+- [ ] Visual pass using `DESIGN.md` direction
+- [ ] Bug pass / demo-readiness check
+
+## Phase 6 — Pitch prep
+- [ ] Storyboard for 3–5 min pitch video (per syllabus final project requirements)
+- [ ] Persona + empathy map slides
+- [ ] Live demo script — pick 1–2 conflict scenarios that showcase the differentiator clearly
+- [ ] Reflection notes: what you learned, what you'd do differently
+
+## Explicitly not doing for MVP (revisit only if time allows)
+- [ ] Multi-user accounts / shared household view
+- [ ] Calendar sync (Google/Apple/Outlook)
+- [ ] Push notifications beyond basic local reminders
+- [ ] AI-powered input (photo/email parsing) — interesting stretch goal, but conflict prioritization is the hero feature per your HMW; don't dilute focus
