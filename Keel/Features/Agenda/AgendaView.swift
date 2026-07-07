@@ -20,9 +20,12 @@ struct AgendaView: View {
                 Color("Background").ignoresSafeArea()
 
                 if events.isEmpty {
-                    Text("Nothing on the books.")
+                    Text("Welcome! Let's get started! Click the \"+ Add event\" button to add your first event!")
                         .font(.body)
+                        .multilineTextAlignment(.center)
                         .foregroundStyle(Color("TextSecondary"))
+                        .padding(.horizontal, 40)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 } else {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 28) {
