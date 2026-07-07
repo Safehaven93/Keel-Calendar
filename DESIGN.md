@@ -62,7 +62,8 @@ Whichever commitment moved gets an explicit new time, shown to the user before t
 Four screens only. No account/settings screens, no onboarding beyond first-run empty state.
 
 ### 4.1 Agenda (Home)
-- Default landing screen. Single vertical scroll, grouped by day, today at top.
+- Default landing screen. A horizontal, scrollable calendar day strip sits at the top (right under the status bar) — today centered on open, scroll left for past days, right for future days. Selecting a day filters the list below to that single day (superseding the earlier "grouped by day" layout — one day at a time, not an always-scrolling multi-day list). "Agenda" is a smaller heading directly below the strip, not the nav bar's large title. Tapping "+ Add event" prefills the currently-selected day.
+- Two distinct empty states: true first-run (no events anywhere yet) shows a welcome message pointing at "+ Add event"; a selected day with no events (but other days have events elsewhere) shows the plain "Nothing on the books." from §6.1 instead — the welcome message is reserved for first-run only, not every empty day.
 - **Layout: individual white rounded cards (14–16pt radius) per event, not a dense flat list.** Generous card padding (16pt) and gaps (12pt) between cards — density stays on the roomy end even as the list grows; resist collapsing back into a tight table.
 - Each card: time (fixed-width column, tabular figures) + title. A conflicting event's card carries a thin left-edge accent in conflict terracotta (`#B5674A`) plus a one-line inline label under the title ("Conflicts with Grocery run") — never an icon-only badge.
 - One primary action: a floating pill button ("+ Add event", solid accent teal, white label, soft shadow), centered at the bottom of the screen, always reachable by thumb.

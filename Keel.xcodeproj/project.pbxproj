@@ -13,6 +13,7 @@
 		217AAB52B45D523F641E00CB /* Recommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16CBE8B5AD0518B7064832E /* Recommendation.swift */; };
 		37E2D17FE1A57F9A9E501883 /* AgendaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAFAC5A81B124F3797D17F3D /* AgendaView.swift */; };
 		792CFF56F31E961C78336122 /* AgendaViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93914CBA9ADFC9A94C732374 /* AgendaViewModel.swift */; };
+		C645083F53FB2A067F599C9D /* CalendarStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 492D3D57CD764F89D2D1685F /* CalendarStripView.swift */; };
 		682DD114D31673A52D76E32D /* EventRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B92E67B68D4FBBF6FD99F2 /* EventRow.swift */; };
 		E47B268439C54488647422CB /* ConflictResolutionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DCF2BE1C8A4709D1EF4E2D /* ConflictResolutionView.swift */; };
 		A72A479902B000894E99E81B /* ConflictResolutionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2B0DFCDBEAD13DFD1A006E /* ConflictResolutionViewModel.swift */; };
@@ -21,6 +22,7 @@
 		AD121182A7ECB817814AB8F8 /* AddEditEventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 287895D2C7CC24A9FD2C2396 /* AddEditEventViewModel.swift */; };
 		8A6B95E8B8CC596B8B0A1662 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2C0FCA3AB4D999CB069A23 /* Event.swift */; };
 		03DBBFAB350EF5BE1EC9AAF3 /* EventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466E11380599C269BEF13679 /* EventStore.swift */; };
+		CA5C962CE80F2F6B9D65B1E3 /* AgendaViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49F477158F1F2CD8EA00A77 /* AgendaViewModelTests.swift */; };
 		1AE9E5CA0C8FFC4454140538 /* ConflictEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */; };
 		4530E5E2004F8453DB6AA24C /* KeelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2D46A1126177EDD0B99455 /* KeelTests.swift */; };
 		9C1B7E3CA2C50FB6B9DA9182 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F83DFFD665B82AAABFA3371 /* Assets.xcassets */; };
@@ -45,6 +47,7 @@
 		F16CBE8B5AD0518B7064832E /* Recommendation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recommendation.swift; sourceTree = "<group>"; };
 		AAFAC5A81B124F3797D17F3D /* AgendaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaView.swift; sourceTree = "<group>"; };
 		93914CBA9ADFC9A94C732374 /* AgendaViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaViewModel.swift; sourceTree = "<group>"; };
+		492D3D57CD764F89D2D1685F /* CalendarStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarStripView.swift; sourceTree = "<group>"; };
 		83B92E67B68D4FBBF6FD99F2 /* EventRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRow.swift; sourceTree = "<group>"; };
 		B8DCF2BE1C8A4709D1EF4E2D /* ConflictResolutionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictResolutionView.swift; sourceTree = "<group>"; };
 		4B2B0DFCDBEAD13DFD1A006E /* ConflictResolutionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictResolutionViewModel.swift; sourceTree = "<group>"; };
@@ -53,6 +56,7 @@
 		287895D2C7CC24A9FD2C2396 /* AddEditEventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditEventViewModel.swift; sourceTree = "<group>"; };
 		3A2C0FCA3AB4D999CB069A23 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		466E11380599C269BEF13679 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStore.swift; sourceTree = "<group>"; };
+		D49F477158F1F2CD8EA00A77 /* AgendaViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaViewModelTests.swift; sourceTree = "<group>"; };
 		DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictEngineTests.swift; sourceTree = "<group>"; };
 		3D2D46A1126177EDD0B99455 /* KeelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeelTests.swift; sourceTree = "<group>"; };
 		0F83DFFD665B82AAABFA3371 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -102,6 +106,7 @@
 			children = (
 				AAFAC5A81B124F3797D17F3D /* AgendaView.swift */,
 				93914CBA9ADFC9A94C732374 /* AgendaViewModel.swift */,
+				492D3D57CD764F89D2D1685F /* CalendarStripView.swift */,
 				83B92E67B68D4FBBF6FD99F2 /* EventRow.swift */,
 			);
 			path = Agenda;
@@ -157,6 +162,7 @@
 		68DE481A39400A49757EB7B7 /* KeelTests */ = {
 			isa = PBXGroup;
 			children = (
+				D49F477158F1F2CD8EA00A77 /* AgendaViewModelTests.swift */,
 				DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */,
 				3D2D46A1126177EDD0B99455 /* KeelTests.swift */,
 			);
@@ -278,6 +284,7 @@
 				217AAB52B45D523F641E00CB /* Recommendation.swift in Sources */,
 				37E2D17FE1A57F9A9E501883 /* AgendaView.swift in Sources */,
 				792CFF56F31E961C78336122 /* AgendaViewModel.swift in Sources */,
+				C645083F53FB2A067F599C9D /* CalendarStripView.swift in Sources */,
 				682DD114D31673A52D76E32D /* EventRow.swift in Sources */,
 				E47B268439C54488647422CB /* ConflictResolutionView.swift in Sources */,
 				A72A479902B000894E99E81B /* ConflictResolutionViewModel.swift in Sources */,
@@ -293,6 +300,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA5C962CE80F2F6B9D65B1E3 /* AgendaViewModelTests.swift in Sources */,
 				1AE9E5CA0C8FFC4454140538 /* ConflictEngineTests.swift in Sources */,
 				4530E5E2004F8453DB6AA24C /* KeelTests.swift in Sources */,
 			);

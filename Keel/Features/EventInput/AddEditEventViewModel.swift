@@ -22,7 +22,10 @@ final class AddEditEventViewModel {
 
     var isEditing: Bool { editingEvent != nil }
 
-    init(editing event: Event? = nil) {
+    /// - Parameter defaultDate: the day to prefill when adding a new event
+    ///   (e.g. the day currently selected in Agenda's calendar strip).
+    ///   Ignored when editing an existing event, which keeps its own date.
+    init(editing event: Event? = nil, defaultDate: Date = .now) {
         self.editingEvent = event
         let calendar = Calendar.current
         if let event {
@@ -35,7 +38,7 @@ final class AddEditEventViewModel {
             notes = event.notes ?? ""
         } else {
             let now = Date()
-            date = calendar.startOfDay(for: now)
+            date = calendar.startOfDay(for: defaultDate)
             startTime = calendar.date(byAdding: .hour, value: 1, to: now) ?? now
             endTime = calendar.date(byAdding: .hour, value: 2, to: now) ?? now
         }

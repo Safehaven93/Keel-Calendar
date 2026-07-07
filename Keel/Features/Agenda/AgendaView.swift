@@ -11,6 +11,7 @@ struct AgendaView: View {
     @Query(sort: \Event.startDate) private var events: [Event]
     @State private var path = NavigationPath()
     @State private var isAddingEvent = false
+    @State private var selectedDate = Calendar.current.startOfDay(for: .now)
 
     private var viewModel: AgendaViewModel { AgendaViewModel(modelContext: modelContext) }
 
@@ -19,47 +20,18 @@ struct AgendaView: View {
             ZStack(alignment: .bottom) {
                 Color("Background").ignoresSafeArea()
 
-                if events.isEmpty {
-                    Text("Welcome! Let's get started! Click the \"+ Add event\" button to add your first event!")
-                        .font(.body)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(Color("TextSecondary"))
-                        .padding(.horizontal, 40)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                } else {
-                    ScrollView {
-                        LazyVStack(alignment: .leading, spacing: 28) {
-                            ForEach(viewModel.groupedByDay(events), id: \.day) { group in
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text(group.day, style: .date)
-                                        .font(.title3.weight(.semibold))
-                                        .foregroundStyle(Color("TextPrimary"))
-                                        .padding(.horizontal, 20)
+                VStack(spacing: 0) {
+                    CalendarStripView(selectedDate: $selectedDate)
 
-                                    VStack(spacing: 12) {
-                                        ForEach(group.events) { event in
-                                            Button {
-                                                handleTap(on: event)
-                                            } label: {
-                                                EventRow(event: event, conflictPartnerTitle: conflictTitle(for: event))
-                                            }
-                                            .buttonStyle(.plain)
-                                            .swipeActions {
-                                                Button(role: .destructive) {
-                                                    viewModel.delete(event)
-                                                } label: {
-                                                    Label("Delete", systemImage: "trash")
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .padding(.horizontal, 20)
-                                }
-                            }
-                        }
-                        .padding(.top, 20)
-                        .padding(.bottom, 110)
-                    }
+                    Text("Agenda")
+                        .font(.title2.weight(.semibold))
+                        .foregroundStyle(Color("TextPrimary"))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                        .padding(.bottom, 12)
+
+                    contentArea
                 }
 
                 Button {
@@ -75,7 +47,7 @@ struct AgendaView: View {
                 }
                 .padding(.bottom, 24)
             }
-            .navigationTitle("Agenda")
+            .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: AgendaRoute.self) { route in
                 switch route {
                 case .detail(let event):
@@ -85,7 +57,50 @@ struct AgendaView: View {
                 }
             }
             .sheet(isPresented: $isAddingEvent) {
-                AddEditEventView(allEvents: events)
+                AddEditEventView(allEvents: events, defaultDate: selectedDate)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var contentArea: some View {
+        if events.isEmpty {
+            Text("Welcome! Let's get started! Click the \"+ Add event\" button to add your first event!")
+                .font(.body)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(Color("TextSecondary"))
+                .padding(.horizontal, 40)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        } else {
+            let dayEvents = viewModel.events(on: selectedDate, from: events)
+            if dayEvents.isEmpty {
+                Text("Nothing on the books.")
+                    .font(.body)
+                    .foregroundStyle(Color("TextSecondary"))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(dayEvents) { event in
+                            Button {
+                                handleTap(on: event)
+                            } label: {
+                                EventRow(event: event, conflictPartnerTitle: conflictTitle(for: event))
+                            }
+                            .buttonStyle(.plain)
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    viewModel.delete(event)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 110)
+                }
             }
         }
     }

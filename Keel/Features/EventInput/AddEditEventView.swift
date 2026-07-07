@@ -15,10 +15,10 @@ struct AddEditEventView: View {
     @State private var conflictPartner: Event?
     @State private var savedEvent: Event?
 
-    init(allEvents: [Event], editing event: Event? = nil) {
+    init(allEvents: [Event], editing event: Event? = nil, defaultDate: Date = .now) {
         self.allEvents = allEvents
         self.editingEvent = event
-        _viewModel = State(initialValue: AddEditEventViewModel(editing: event))
+        _viewModel = State(initialValue: AddEditEventViewModel(editing: event, defaultDate: defaultDate))
     }
 
     var body: some View {
