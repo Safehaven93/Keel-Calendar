@@ -23,6 +23,7 @@
 		AD121182A7ECB817814AB8F8 /* AddEditEventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 287895D2C7CC24A9FD2C2396 /* AddEditEventViewModel.swift */; };
 		8A6B95E8B8CC596B8B0A1662 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2C0FCA3AB4D999CB069A23 /* Event.swift */; };
 		03DBBFAB350EF5BE1EC9AAF3 /* EventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466E11380599C269BEF13679 /* EventStore.swift */; };
+		7D1A4C9E929C415399EA8A56 /* AddEditEventViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02892AFF85D93509C62D987B /* AddEditEventViewModelTests.swift */; };
 		CA5C962CE80F2F6B9D65B1E3 /* AgendaViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49F477158F1F2CD8EA00A77 /* AgendaViewModelTests.swift */; };
 		1AE9E5CA0C8FFC4454140538 /* ConflictEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */; };
 		4530E5E2004F8453DB6AA24C /* KeelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2D46A1126177EDD0B99455 /* KeelTests.swift */; };
@@ -59,6 +60,7 @@
 		287895D2C7CC24A9FD2C2396 /* AddEditEventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditEventViewModel.swift; sourceTree = "<group>"; };
 		3A2C0FCA3AB4D999CB069A23 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		466E11380599C269BEF13679 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStore.swift; sourceTree = "<group>"; };
+		02892AFF85D93509C62D987B /* AddEditEventViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditEventViewModelTests.swift; sourceTree = "<group>"; };
 		D49F477158F1F2CD8EA00A77 /* AgendaViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaViewModelTests.swift; sourceTree = "<group>"; };
 		DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictEngineTests.swift; sourceTree = "<group>"; };
 		3D2D46A1126177EDD0B99455 /* KeelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeelTests.swift; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 		68DE481A39400A49757EB7B7 /* KeelTests */ = {
 			isa = PBXGroup;
 			children = (
+				02892AFF85D93509C62D987B /* AddEditEventViewModelTests.swift */,
 				D49F477158F1F2CD8EA00A77 /* AgendaViewModelTests.swift */,
 				DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */,
 				3D2D46A1126177EDD0B99455 /* KeelTests.swift */,
@@ -307,6 +310,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D1A4C9E929C415399EA8A56 /* AddEditEventViewModelTests.swift in Sources */,
 				CA5C962CE80F2F6B9D65B1E3 /* AgendaViewModelTests.swift in Sources */,
 				1AE9E5CA0C8FFC4454140538 /* ConflictEngineTests.swift in Sources */,
 				4530E5E2004F8453DB6AA24C /* KeelTests.swift in Sources */,

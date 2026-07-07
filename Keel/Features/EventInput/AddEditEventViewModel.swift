@@ -39,9 +39,20 @@ final class AddEditEventViewModel {
         } else {
             let now = Date()
             date = calendar.startOfDay(for: defaultDate)
-            startTime = calendar.date(byAdding: .hour, value: 1, to: now) ?? now
-            endTime = calendar.date(byAdding: .hour, value: 2, to: now) ?? now
+            let hourFromNow = calendar.date(byAdding: .hour, value: 1, to: now) ?? now
+            let roundedStart = Self.roundedUpToNextHalfHour(hourFromNow, calendar: calendar)
+            startTime = roundedStart
+            endTime = calendar.date(byAdding: .hour, value: 1, to: roundedStart) ?? roundedStart
         }
+    }
+
+    /// Rounds up to the next :00 or :30 — a suggested default of 7:17 reads
+    /// as arbitrary; 7:30 reads as a real proposed time.
+    static func roundedUpToNextHalfHour(_ date: Date, calendar: Calendar = .current) -> Date {
+        let minute = calendar.component(.minute, from: date)
+        let remainder = minute % 30
+        let rounded = remainder == 0 ? date : calendar.date(byAdding: .minute, value: 30 - remainder, to: date) ?? date
+        return calendar.date(bySettingHour: calendar.component(.hour, from: rounded), minute: calendar.component(.minute, from: rounded), second: 0, of: rounded) ?? rounded
     }
 
     private func combined(day: Date, time: Date) -> Date {
