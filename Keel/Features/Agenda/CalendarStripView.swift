@@ -29,24 +29,39 @@ struct CalendarStripView: View {
                 .foregroundStyle(Color("TextPrimary"))
             }
             .padding(.horizontal, 20)
+            .padding(.top, 8)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 10) {
-                    ForEach(days, id: \.self) { day in
-                        dayCell(day)
-                            .onTapGesture { selectedDate = day }
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 10) {
+                        ForEach(days, id: \.self) { day in
+                            dayCell(day)
+                                .id(day)
+                                .onTapGesture { selectedDate = day }
+                        }
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 8)
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
+                .frame(height: 80)
+                // A plain .onAppear scrollTo can undershoot against a
+                // LazyHStack this large before it's finished its first
+                // layout pass; deferring one runloop tick via .task gives
+                // it time to measure nearby cells first, which is enough
+                // for scrollTo to land correctly. Re-fires whenever
+                // windowCenter changes (id below forces recreation), so
+                // jumping via the month picker re-centers too.
+                .task {
+                    try? await Task.sleep(nanoseconds: 50_000_000)
+                    proxy.scrollTo(windowCenter, anchor: .center)
+                }
             }
-            // Keying on windowCenter forces the ScrollView to recreate
-            // (and therefore re-run its initial-appearance centering) only
-            // when jumping via the month picker — not on every in-strip
-            // tap, which would otherwise snap the scroll position back to
-            // center each time and defeat manual scrolling.
+            // Keying on windowCenter forces the whole strip to recreate
+            // only when jumping via the month picker — not on every
+            // in-strip tap, which would otherwise snap the scroll
+            // position back to center each time and defeat manual
+            // scrolling.
             .id(windowCenter)
-            .defaultScrollAnchor(.center)
         }
         .sheet(isPresented: $isShowingMonthPicker) {
             NavigationStack {

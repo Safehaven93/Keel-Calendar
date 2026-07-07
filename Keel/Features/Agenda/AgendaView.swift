@@ -47,7 +47,7 @@ struct AgendaView: View {
                 }
                 .padding(.bottom, 24)
             }
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: AgendaRoute.self) { route in
                 switch route {
                 case .detail(let event):
