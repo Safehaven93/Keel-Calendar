@@ -2,9 +2,11 @@ import SwiftUI
 import SwiftData
 
 /// Pushed (never `.sheet()`) per DESIGN §3/§8 — this decision deserves a full
-/// screen, not a dismissible overlay. Handles three states: decided
-/// (KEEP/MOVE hierarchy), too-close-to-call (§6.4, equal weight), and stale
-/// (§6.3, conflict already resolved elsewhere).
+/// screen, not a dismissible overlay. Three stages: choosing which event
+/// wins (decided KEEP/MOVE hierarchy, or too-close-to-call §6.4 equal
+/// weight), picking the moved event's new time (ranked suggestions + manual
+/// override), and a brief confirmation before returning to Agenda — nothing
+/// is saved, and the screen never dismisses, until the user picks a time.
 struct ConflictResolutionView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -19,23 +21,40 @@ struct ConflictResolutionView: View {
     var body: some View {
         ZStack {
             Color("Background").ignoresSafeArea()
-
-            if !viewModel.isStillConflicted {
-                staleState
-            } else {
-                ScrollView {
-                    VStack(spacing: 20) {
-                        reasoningCard
-                        eventCard(viewModel.eventA, isKeepSide: viewModel.defaultKeep === viewModel.eventA)
-                        eventCard(viewModel.eventB, isKeepSide: viewModel.defaultKeep === viewModel.eventB)
-                        actions
-                    }
-                    .padding(20)
-                }
-            }
+            content
         }
         .navigationTitle("Conflict")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.stage {
+        case .choosing:
+            if viewModel.isStillConflicted {
+                choosingStage
+            } else {
+                staleState
+            }
+        case .pickingTime(let keep, let move, let suggestions):
+            pickingTimeStage(keep: keep, move: move, suggestions: suggestions)
+        case .confirmed(let move, let newStart):
+            confirmedStage(move: move, newStart: newStart)
+        }
+    }
+
+    // MARK: - Choosing
+
+    private var choosingStage: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                reasoningCard
+                eventCard(viewModel.eventA, isKeepSide: viewModel.defaultKeep === viewModel.eventA)
+                eventCard(viewModel.eventB, isKeepSide: viewModel.defaultKeep === viewModel.eventB)
+                choosingActions
+            }
+            .padding(20)
+        }
     }
 
     private var staleState: some View {
@@ -98,12 +117,10 @@ struct ConflictResolutionView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
-    private var actions: some View {
+    private var choosingActions: some View {
         VStack(spacing: 12) {
             Button {
-                viewModel.resolve(keep: viewModel.defaultKeep, move: viewModel.defaultMove, in: modelContext)
-                onResolved?()
-                dismiss()
+                viewModel.beginRescheduling(keep: viewModel.defaultKeep, move: viewModel.defaultMove, in: modelContext)
             } label: {
                 Text("Keep \(viewModel.defaultKeep.title), move \(viewModel.defaultMove.title)")
                     .font(.body.weight(.semibold))
@@ -115,9 +132,7 @@ struct ConflictResolutionView: View {
             }
 
             Button {
-                viewModel.resolve(keep: viewModel.defaultMove, move: viewModel.defaultKeep, in: modelContext)
-                onResolved?()
-                dismiss()
+                viewModel.beginRescheduling(keep: viewModel.defaultMove, move: viewModel.defaultKeep, in: modelContext)
             } label: {
                 Text("Keep \(viewModel.defaultMove.title) instead")
                     .font(.body.weight(.semibold))
@@ -137,5 +152,137 @@ struct ConflictResolutionView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Picking time
+
+    private func pickingTimeStage(keep: Event, move: Event, suggestions: [RescheduleSuggestion]) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("New time for \(move.title)")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Color("TextPrimary"))
+                    Text("Keeping \(keep.title) where it is.")
+                        .font(.footnote)
+                        .foregroundStyle(Color("TextSecondary"))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                if !suggestions.isEmpty {
+                    VStack(spacing: 12) {
+                        ForEach(suggestions) { suggestion in
+                            suggestionCard(suggestion)
+                        }
+                    }
+                }
+
+                manualOverrideSection(move: move)
+
+                VStack(spacing: 12) {
+                    Button {
+                        viewModel.confirmPickedTime(keep: keep, move: move)
+                    } label: {
+                        Text("Confirm")
+                            .font(.body.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .foregroundStyle(.white)
+                            .background(viewModel.canConfirmPickedTime ? Color("AccentColor") : Color("AccentColor").opacity(0.4))
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .disabled(!viewModel.canConfirmPickedTime)
+
+                    Button("Back") {
+                        viewModel.backToChoosing()
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(Color("TextSecondary"))
+                }
+            }
+            .padding(20)
+        }
+    }
+
+    private func suggestionCard(_ suggestion: RescheduleSuggestion) -> some View {
+        let isSelected = !viewModel.isUsingManualTime && viewModel.selectedSuggestion == suggestion
+        return Button {
+            viewModel.isUsingManualTime = false
+            viewModel.selectedSuggestion = suggestion
+        } label: {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(suggestion.start, format: .dateTime.weekday(.wide).month().day().hour().minute())
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(isSelected ? .white : Color("TextPrimary"))
+                Text(suggestion.reason)
+                    .font(.footnote)
+                    .foregroundStyle(isSelected ? .white.opacity(0.85) : Color("TextSecondary"))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(isSelected ? Color("AccentColor") : Color("Surface"))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func manualOverrideSection(move: Event) -> some View {
+        DisclosureGroup(
+            "Pick a different time",
+            isExpanded: Binding(
+                get: { viewModel.isUsingManualTime },
+                set: { newValue in
+                    viewModel.isUsingManualTime = newValue
+                    if newValue {
+                        viewModel.revalidateManualTime(move: move, in: modelContext)
+                    }
+                }
+            )
+        ) {
+            VStack(alignment: .leading, spacing: 12) {
+                DatePicker("Date", selection: $viewModel.manualDate, displayedComponents: .date)
+                DatePicker("Start", selection: $viewModel.manualStartTime, displayedComponents: .hourAndMinute)
+                DatePicker("End", selection: $viewModel.manualEndTime, displayedComponents: .hourAndMinute)
+
+                if let conflict = viewModel.manualConflict {
+                    Text("This still overlaps with \(conflict.title).")
+                        .font(.footnote)
+                        .foregroundStyle(Color("ConflictColor"))
+                }
+            }
+            .padding(.top, 8)
+            .onChange(of: viewModel.manualDate) { _, _ in viewModel.revalidateManualTime(move: move, in: modelContext) }
+            .onChange(of: viewModel.manualStartTime) { _, _ in viewModel.revalidateManualTime(move: move, in: modelContext) }
+            .onChange(of: viewModel.manualEndTime) { _, _ in viewModel.revalidateManualTime(move: move, in: modelContext) }
+        }
+        .tint(Color("TextPrimary"))
+        .padding(16)
+        .background(Color("Surface"))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    // MARK: - Confirmed
+
+    private func confirmedStage(move: Event, newStart: Date) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.largeTitle)
+                .foregroundStyle(Color("SuccessColor"))
+            Text("\(move.title) moved")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(Color("TextPrimary"))
+            Text(newStart, format: .dateTime.weekday(.wide).month().day().hour().minute())
+                .font(.body)
+                .foregroundStyle(Color("TextSecondary"))
+            Button("Back to Agenda") {
+                onResolved?()
+                dismiss()
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color("AccentColor"))
+            .padding(.top, 8)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .padding(20)
     }
 }

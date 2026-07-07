@@ -52,8 +52,11 @@ Three explicit actions, always visible, never buried in a menu:
 - **Override** — user picks the other commitment to keep instead; app deprioritizes/reschedules the one it had recommended keeping.
 - **See more detail** — expands reasoning (why this one, what else is on the loser's day, alternate slots) without leaving the screen.
 
+**Step 4.5 — Choosing the new time**
+Picking either action never resolves immediately — it opens a "new time for X" step showing up to 3 ranked candidate slots, each with a one-line reason. Ranking considers (in order): how close the candidate is to the time originally requested, how clear the candidate day otherwise is (fewer events, and specifically avoiding other fixed commitments), with a light preference for sooner days as a tiebreak — searching the same day first before later days. A "Pick a different time" manual override is always available; a manual selection is continuously re-validated against the rest of the calendar (including whichever event was just chosen to keep) and Confirm stays disabled with an inline warning naming the conflict until the manual pick is actually free. Nothing is saved until the user taps Confirm.
+
 **Step 5 — Resolution confirmed**
-Whichever commitment moved gets an explicit new time, shown to the user before the screen dismisses — never moved silently in the background. Return to Agenda; the moved event is visibly marked as rescheduled (subtle, not celebratory) for one view so the user isn't confused about why a time changed.
+Whichever commitment moved gets an explicit new time, shown to the user in a brief confirmation state before the screen dismisses — never moved silently in the background. Return to Agenda; the moved event is visibly marked as rescheduled (subtle, not celebratory) for one view so the user isn't confused about why a time changed.
 
 ---
 
