@@ -97,7 +97,7 @@ Cool, low-saturation palette — trustworthy and calm, not clinical. One accent 
 
 | Role | Value | Usage |
 |---|---|---|
-| Background | `#F7F8F9` | Base app background |
+| Background | `#C4DBCD` | Base app background (updated post-MVP-review from a cool near-white to a light green echoing the app icon) |
 | Surface | `#FFFFFF` | Cards, sheets |
 | Border/divider | `#E4E7EA` | Hairlines, card edges |
 | Text primary | `#1B2126` | Titles, primary copy |
