@@ -483,8 +483,8 @@ emit("\t\t\tname = Release;")
 emit("\t\t};")
 
 app_target_settings = """\
-\t\t\tASSETSCATALOG_COMPILER_APPICON_NAME = AppIcon;
-\t\t\tASSETSCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+\t\t\tASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 \t\t\tCODE_SIGN_STYLE = Automatic;
 \t\t\tCURRENT_PROJECT_VERSION = 1;
 \t\t\tGENERATE_INFOPLIST_FILE = YES;
