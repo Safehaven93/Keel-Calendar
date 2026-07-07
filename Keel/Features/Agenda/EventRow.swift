@@ -14,7 +14,7 @@ struct EventRow: View {
                 .frame(width: 3)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(event.startDate, style: .time)
+                Text(event.startDate...event.endDate)
                     .font(.footnote.monospacedDigit())
                     .foregroundStyle(Color("TextSecondary"))
                 Text(event.title)
