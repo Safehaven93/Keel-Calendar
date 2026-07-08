@@ -8,6 +8,7 @@ struct EventDetailView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \Event.startDate) private var allEvents: [Event]
     @State private var isEditing = false
 
     var body: some View {
@@ -43,7 +44,7 @@ struct EventDetailView: View {
         .navigationTitle("Event")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $isEditing) {
-            AddEditEventView(allEvents: [], editing: event)
+            AddEditEventView(allEvents: allEvents, editing: event)
         }
     }
 

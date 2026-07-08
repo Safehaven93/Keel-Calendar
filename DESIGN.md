@@ -47,9 +47,10 @@ Screen shows both commitments side by side with a plain-language recommendation,
 The recommendation is generated from signals the app already has: flexibility (does this commitment have a fixed external time, e.g. a performance/appointment, vs. a self-scheduled task), rescheduling window (how many days it could plausibly move within), and who it involves (a commitment tied to another person, e.g. a kid's recital, outweighs a solo errand — surfaced when known, never assumed to be true 100% of the time — recommendation is a signal, not a verdict).
 
 **Step 4 — User decides**
-Three explicit actions, always visible, never buried in a menu:
+Four explicit actions, always visible, never buried in a menu:
 - **Keep both / reschedule the loser** — user confirms the app's recommendation; Keel proposes a new time for the lower-priority item and lets the user adjust before confirming.
 - **Override** — user picks the other commitment to keep instead; app deprioritizes/reschedules the one it had recommended keeping.
+- **Keep both, decide later** — user isn't ready to pick a winner. Both commitments save exactly as entered, still marked as conflicting on Agenda; nothing about the conflict is auto-resolved or hidden. The user resolves it later by editing either event's time from Event Detail — that edit re-checks for conflicts and either clears the marker (if the new time no longer overlaps) or re-routes to this same screen. This is an escape hatch, not a third resolution outcome — the reasoning card and KEEP/MOVE hierarchy stay exactly as informative as before for whenever the user comes back.
 - **See more detail** — expands reasoning (why this one, what else is on the loser's day, alternate slots) without leaving the screen.
 
 **Step 4.5 — Choosing the new time**
@@ -66,7 +67,7 @@ Four screens only. No account/settings screens, no onboarding beyond first-run e
 
 ### 4.1 Agenda (Home)
 - Default landing screen. A month label ("July 2026", with a chevron affordance) sits above a horizontal, scrollable calendar day strip at the top (right under the status bar) — today centered on open, scroll left for past days, right for future days. Selecting a day filters the list below to that single day (superseding the earlier "grouped by day" layout — one day at a time, not an always-scrolling multi-day list). "Agenda" is a smaller heading directly below the strip, not the nav bar's large title. Tapping "+ Add event" prefills the currently-selected day.
-- Tapping the month label opens a traditional calendar-grid picker (native `DatePicker` `.graphical` style, presented as a sheet) for jumping directly to any day, month, or year — the day strip re-centers on whatever's picked. This is the escape hatch for dates far outside the strip's own nearby scroll range.
+- Tapping the month label opens a traditional calendar-grid picker (`UICalendarView`, wrapped for SwiftUI — swapped from the native `DatePicker` `.graphical` style so days can carry a decoration) for jumping directly to any day, month, or year — the day strip re-centers on whatever's picked. This is the escape hatch for dates far outside the strip's own nearby scroll range. Any day containing an unresolved conflict shows a small `exclamationmark.circle.fill` decoration in conflict terracotta, so conflicts are visible before drilling into a day.
 - Two distinct empty states: true first-run (no events anywhere yet) shows a welcome message pointing at "+ Add event"; a selected day with no events (but other days have events elsewhere) shows the plain "Nothing on the books." from §6.1 instead — the welcome message is reserved for first-run only, not every empty day.
 - **Layout: individual white rounded cards (14–16pt radius) per event, not a dense flat list.** Generous card padding (16pt) and gaps (12pt) between cards — density stays on the roomy end even as the list grows; resist collapsing back into a tight table.
 - Each card: time (fixed-width column, tabular figures) + title. A conflicting event's card carries a thin left-edge accent in conflict terracotta (`#B5674A`) plus a one-line inline label under the title ("Conflicts with Grocery run") — never an icon-only badge.
@@ -174,7 +175,7 @@ Out of scope — do not build, and do not leave UI affordances implying these ar
 
 ## 8. Implementation Notes for SwiftUI
 
-- Build with native SwiftUI components (`List`, `NavigationStack`, `Form` for Add/Edit) rather than custom-drawn equivalents — native feel supports the "calm, trustworthy" goal more than a custom design language would.
+- Build with native SwiftUI components (`List`, `NavigationStack`, `Form` for Add/Edit) rather than custom-drawn equivalents — native feel supports the "calm, trustworthy" goal more than a custom design language would. Exception: the month picker uses `UICalendarView` (UIKit) via a thin `UIViewRepresentable`, since SwiftUI's `DatePicker` has no API for per-day decorations and the conflict marker needs one — still a system calendar grid, just the UIKit sibling.
 - Conflict Resolution should be presented as a full screen (`NavigationStack` push), not a `.sheet()` — this is a decision that deserves the same weight as any other primary screen, not a dismissible overlay that invites the user to swipe away without deciding.
 - Respect Dynamic Type and support Dark Mode from the start using semantic colors (`Color("Background")`, etc. defined in an asset catalog) rather than hardcoded hex in every view — define the palette in §5.1 as a `ColorSet` once.
 - Keep the conflict-reasoning logic (flexibility comparison, rescheduling window, priority signals) in a separate model/service layer, not embedded in the view — this logic will likely evolve fastest post-MVP.

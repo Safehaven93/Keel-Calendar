@@ -14,25 +14,27 @@ Mapped to the MIS 676 course schedule so the code stays in step with the design 
 - [ ] Update persona in `CLAUDE.md` if research shifts who the primary user actually is
 
 ## Phase 2 — Xcode project scaffolding
-- [ ] New SwiftUI + SwiftData project, iOS 17+ target
-- [ ] Set up MVVM folder structure (`Features/`, `Models/`, `ConflictEngine/`)
-- [ ] Basic `Event` SwiftData model (title, start, end, location, flexibility flag, notes)
-- [ ] Manual event entry flow (add/edit/delete) — no conflict logic yet, just CRUD
+- [x] New SwiftUI + SwiftData project, iOS 17+ target
+- [x] Set up MVVM folder structure (`Features/`, `Models/`, `ConflictEngine/`)
+- [x] Basic `Event` SwiftData model (title, start, end, location, flexibility flag, notes)
+- [x] Manual event entry flow (add/edit/delete) — no conflict logic yet, just CRUD
 
 ## Phase 3 — Conflict engine (core differentiator — prioritize this over polish)
-- [ ] Overlap detection (literal time overlap)
-- [ ] Buffer/travel-time soft-conflict detection
-- [ ] Prioritization scoring using signals from `SKILL.md`
-- [ ] Explainability: surface *why* one event is recommended over another
-- [ ] Unit tests for the conflict engine — this is the piece most worth getting right
+- [x] Overlap detection (literal time overlap)
+- [x] Buffer/travel-time soft-conflict detection
+- [x] Prioritization scoring using signals from `SKILL.md`
+- [x] Explainability: surface *why* one event is recommended over another
+- [x] Unit tests for the conflict engine — this is the piece most worth getting right
 
 ## Phase 4 — Conflict UI
-- [ ] Conflict alert / inline warning when a new event collides with an existing one
-- [ ] Resolution screen: show both events, the recommendation, and the reasoning
-- [ ] User can override the recommendation (never auto-resolve silently)
+- [x] Conflict alert / inline warning when a new event collides with an existing one
+- [x] Resolution screen: show both events, the recommendation, and the reasoning
+- [x] User can override the recommendation (never auto-resolve silently)
+- [x] "Keep both, decide later" escape hatch — user can leave a conflict unresolved and later clear/re-trigger it just by editing either event's time (fixed a bug where editing from Event Detail never re-checked conflicts)
+- [x] Conflict indicator (small badge) on the month picker for any day with an unresolved conflict — required swapping the native `DatePicker(.graphical)` for a custom SwiftUI month grid, since neither it nor `UICalendarView` can place a marker tight against a specific day number
 
 ## Phase 5 — MVP polish (Session 7–8, Implementation)
-- [ ] Home/agenda view — what does the user see day-to-day
+- [x] Home/agenda view — what does the user see day-to-day
 - [ ] Empty states, onboarding (minimal — this is a prototype, not a launch)
 - [ ] Visual pass using `DESIGN.md` direction
 - [ ] Bug pass / demo-readiness check

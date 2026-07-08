@@ -21,7 +21,7 @@ struct AgendaView: View {
                 Color("Background").ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    CalendarStripView(selectedDate: $selectedDate)
+                    CalendarStripView(selectedDate: $selectedDate, conflictDays: conflictDays)
 
                     Text("Agenda")
                         .font(.title2.weight(.semibold))
@@ -117,6 +117,12 @@ struct AgendaView: View {
     private func conflictTitle(for event: Event) -> String? {
         guard let partnerID = event.unresolvedConflictEventID else { return nil }
         return events.first(where: { $0.id == partnerID })?.title
+    }
+
+    /// Days containing an unresolved conflict, for the month picker's
+    /// exclamation-mark decoration.
+    private var conflictDays: Set<CalendarDay> {
+        Set(events.filter { $0.unresolvedConflictEventID != nil }.map { CalendarDay($0.startDate) })
     }
 }
 

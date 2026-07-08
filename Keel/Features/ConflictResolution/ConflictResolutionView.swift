@@ -142,6 +142,15 @@ struct ConflictResolutionView: View {
                     .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color("AccentColor"), lineWidth: 1.5))
             }
 
+            Button {
+                onResolved?()
+                dismiss()
+            } label: {
+                Text("Keep both, decide later")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Color("TextSecondary"))
+            }
+
             if viewModel.recommendation.reasoning.count > 1 {
                 Button {
                     viewModel.showsDetail.toggle()
