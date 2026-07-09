@@ -10,6 +10,7 @@ import SwiftData
 struct ConflictResolutionView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \Event.startDate) private var allEvents: [Event]
     @State private var viewModel: ConflictResolutionViewModel
     var onResolved: (() -> Void)?
 
@@ -25,6 +26,13 @@ struct ConflictResolutionView: View {
         }
         .navigationTitle("Conflict")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $viewModel.eventToEdit, onDismiss: {
+            if viewModel.isStillConflicted {
+                viewModel.refreshRecommendation()
+            }
+        }) { event in
+            AddEditEventView(allEvents: allEvents, editing: event)
+        }
     }
 
     @ViewBuilder
@@ -94,27 +102,39 @@ struct ConflictResolutionView: View {
 
     private func eventCard(_ event: Event, isKeepSide: Bool) -> some View {
         let showsTags = viewModel.isDecided
-        return VStack(alignment: .leading, spacing: 8) {
-            if showsTags {
-                Text(isKeepSide ? "KEEP" : "MOVE")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(isKeepSide ? Color("AccentColor") : Color("ConflictColor"))
+        return ZStack(alignment: .topTrailing) {
+            VStack(alignment: .leading, spacing: 8) {
+                if showsTags {
+                    Text(isKeepSide ? "KEEP" : "MOVE")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(isKeepSide ? Color("AccentColor") : Color("ConflictColor"))
+                }
+                Text(event.title)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color("TextPrimary"))
+                    .padding(.trailing, 24)
+                Text(event.startDate, style: .time)
+                    .font(.footnote.monospacedDigit())
+                    .foregroundStyle(Color("TextSecondary"))
             }
-            Text(event.title)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(Color("TextPrimary"))
-            Text(event.startDate, style: .time)
-                .font(.footnote.monospacedDigit())
-                .foregroundStyle(Color("TextSecondary"))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(showsTags && !isKeepSide ? Color("ConflictTint") : Color("Surface"))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(showsTags && isKeepSide ? Color("AccentColor") : Color("Border"), lineWidth: showsTags && isKeepSide ? 2 : 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+
+            Button {
+                viewModel.eventToEdit = event
+            } label: {
+                Image(systemName: "pencil.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(Color("TextSecondary"))
+            }
+            .padding(12)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(showsTags && !isKeepSide ? Color("ConflictTint") : Color("Surface"))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(showsTags && isKeepSide ? Color("AccentColor") : Color("Border"), lineWidth: showsTags && isKeepSide ? 2 : 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private var choosingActions: some View {

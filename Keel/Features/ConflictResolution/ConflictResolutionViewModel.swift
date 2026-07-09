@@ -11,9 +11,10 @@ final class ConflictResolutionViewModel {
 
     let eventA: Event
     let eventB: Event
-    let recommendation: Recommendation
+    private(set) var recommendation: Recommendation
     var showsDetail = false
     var stage: Stage = .choosing
+    var eventToEdit: Event?
 
     // Picking-time state
     var selectedSuggestion: RescheduleSuggestion?
@@ -37,6 +38,13 @@ final class ConflictResolutionViewModel {
     }
 
     var isDecided: Bool { recommendation.isDecided }
+
+    /// Called after the edit sheet dismisses, in case a title/time/
+    /// flexibility change flipped which event the engine now recommends
+    /// keeping — the reasoning shown shouldn't go stale mid-decision.
+    func refreshRecommendation() {
+        recommendation = ConflictEngine.recommend(a: eventA, b: eventB)
+    }
 
     /// Default keep candidate for the primary action — the engine's pick
     /// when decided, else `eventA` for the equal-weight §6.4 case (the UI
