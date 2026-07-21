@@ -89,9 +89,16 @@ struct CalendarStripView: View {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") { isShowingMonthPicker = false }
                         }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Done") { jump(to: pickerDate) }
-                        }
+                    }
+                    // Tapping a day picks it and closes the sheet in one
+                    // step — no separate "Done" confirmation needed. Only
+                    // fires on an actual day tap inside the grid: the
+                    // pickerDate = selectedDate assignment that seeds this
+                    // sheet happens before it's presented, and browsing
+                    // months with the chevrons only changes the picker's
+                    // displayed month, not pickerDate.
+                    .onChange(of: pickerDate) { _, newValue in
+                        jump(to: newValue)
                     }
             }
             .presentationDetents([.medium, .large])
