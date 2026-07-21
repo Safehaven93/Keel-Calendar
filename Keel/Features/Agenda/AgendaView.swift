@@ -74,10 +74,7 @@ struct AgendaView: View {
         } else {
             let dayEvents = viewModel.events(on: selectedDate, from: events)
             if dayEvents.isEmpty {
-                Text("Nothing on the books.")
-                    .font(.body)
-                    .foregroundStyle(Color("TextSecondary"))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                emptyDayContent
             } else {
                 ScrollView {
                     LazyVStack(spacing: 12) {
@@ -102,6 +99,36 @@ struct AgendaView: View {
                     .padding(.bottom, 110)
                 }
             }
+        }
+    }
+
+    /// Filler for an empty day: the headline plus, if any exist, the
+    /// soonest upcoming events from the highest-priority flexibility tier
+    /// that has some (fixed, then somewhat flexible, then very flexible).
+    @ViewBuilder
+    private var emptyDayContent: some View {
+        let upcoming = viewModel.upcomingPriorityEvents(after: selectedDate, from: events)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Nothing today! But take a look at what's coming")
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color("TextSecondary"))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 24)
+                    .padding(.bottom, upcoming.isEmpty ? 0 : 12)
+
+                ForEach(upcoming) { event in
+                    Button {
+                        handleTap(on: event)
+                    } label: {
+                        EventRow(event: event, conflictPartnerTitle: conflictTitle(for: event))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 110)
         }
     }
 

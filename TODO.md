@@ -2,40 +2,40 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-21, read this first
+## Session handoff — 2026-07-21 (later same day), read this first
 
-**Status: visually verified, builds clean, still not committed.** UI
-automation (`tap`/`snapshot_ui`/`screenshot`) came back after an MCP
-reconnect + fresh Claude Code session, so the month-picker "busyness"
-shading from the prior handoff got tested for real: added events across
-days with 1, 2, 3, and 5 (capped to 4) counts and opened the month picker.
+**Status: visually verified, builds clean, not committed yet.** Added an
+"upcoming events" fallback to the empty-day agenda state.
 
-Confirmed:
-- shading is a continuous ramp, not a threshold jump — each additional
-  event visibly deepens the `Color("AccentColor")` fill, from a pale tint
-  at 1 event up to the darkest shade at the 4+ cap
-  (`MonthCalendarPicker.busynessFillOpacity(for:)`)
-- text legibly switches to white above the 50% fill-opacity threshold
-- the selected-day ring (`Circle().stroke(...)`) reads clearly against
-  both light and dark fills
+**What changed:** when the selected day has no events, the Agenda no
+longer just says "Nothing on the books." It now shows "Nothing today!
+But take a look at what's coming" and, below that, the soonest upcoming
+events — but only from the highest-priority `Flexibility` tier that has
+any: `fixed` first, then `somewhatFlexible`, then `veryFlexible`
+(`AgendaViewModel.upcomingPriorityEvents(after:from:limit:)`). So a
+far-off fixed commitment outranks a sooner flexible one; flexible events
+only surface once there's nothing more fixed on the horizon. Capped at 5
+events, no explicit day-window cutoff.
 
-**Bug found + fixed this session:** the month-picker sheet had no
-explicit `.presentationBackground`, so it inherited SwiftUI's default
-translucent system material — the Agenda view's "+ Add event" button was
-bleeding through as a soft blue smear behind days near the bottom of the
-grid. Fixed by adding `.presentationBackground(Color("Surface"))` in
-`CalendarStripView.swift` (the `.sheet` that presents
-`MonthCalendarPicker`). Rebuilt and re-verified — sheet background is now
-solid, bleed-through gone.
+Verified interactively via UI automation:
+- fixed event 2 days out correctly showed, and correctly suppressed a
+  *sooner* (1 day out) somewhat-flexible event — confirms tier priority
+  beats chronological order
+- deleting the fixed event immediately surfaced the somewhat-flexible
+  one that had been suppressed — confirms the tier-fallback works, not
+  just tier-1-or-nothing
+
+Also confirmed: with no upcoming events of any tier, the headline shows
+alone with no list below it — reads cleanly, no leftover empty spacing.
 
 **Next steps for whoever picks this up:**
-1. `git status` will show `MonthCalendarPicker.swift`, `CalendarStripView.swift`,
-   `AgendaView.swift` modified (busyness shading) — review the diff, then
-   commit and push. Nothing from this feature is committed yet.
-2. Any leftover manually-added test events (titled "Test event 1", "Event A/B",
-   "Event C1-3", "Event D1-5" on 2026-07-25 through 07-28) were added purely to
-   exercise the shading gradient and should be deleted before/as part of that
-   commit if any remain.
+1. `git status` will show `AgendaView.swift` and `AgendaViewModel.swift`
+   modified — review the diff, then commit and push.
+2. Not yet tested: the `veryFlexible` fallback tier specifically (only
+   fixed → somewhatFlexible was exercised this session).
+3. No explicit "near future" day cutoff was implemented — it always shows
+   the soonest events of the best available tier, however far out. Revisit
+   if that reads as too permissive once there's real usage data.
 
 ## Phase 0 — Before writing app code
 - [ ] Finish 3 user conversations about scheduling pain points (Homework #3, due before Session 3)

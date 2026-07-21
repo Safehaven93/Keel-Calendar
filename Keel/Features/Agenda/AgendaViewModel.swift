@@ -24,6 +24,24 @@ final class AgendaViewModel {
             .sorted { $0.startDate < $1.startDate }
     }
 
+    /// Events after `date`, filtered to the highest-priority flexibility
+    /// tier that has any — fixed first, then somewhat flexible, then very
+    /// flexible. Used to fill an empty agenda day with "what's coming",
+    /// leading with the commitments least able to move.
+    func upcomingPriorityEvents(after date: Date, from events: [Event], limit: Int = 5) -> [Event] {
+        let future = events
+            .filter { $0.startDate > date }
+            .sorted { $0.startDate < $1.startDate }
+
+        for tier in [Flexibility.fixed, .somewhatFlexible, .veryFlexible] {
+            let matches = future.filter { $0.flexibility == tier }
+            if !matches.isEmpty {
+                return Array(matches.prefix(limit))
+            }
+        }
+        return []
+    }
+
     /// A window of `2*days + 1` calendar days centered on `center`, used to
     /// populate the horizontal calendar strip. Pulled out as a pure function
     /// (rather than embedded in the strip view) so the range math is
