@@ -39,7 +39,12 @@ struct CalendarStripView: View {
                         ForEach(days, id: \.self) { day in
                             dayCell(day)
                                 .id(day)
-                                .onTapGesture { selectedDate = day }
+                                .onTapGesture {
+                                    selectedDate = day
+                                    withAnimation {
+                                        proxy.scrollTo(day, anchor: .center)
+                                    }
+                                }
                         }
                     }
                     .padding(.horizontal, 20)

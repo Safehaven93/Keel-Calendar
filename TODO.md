@@ -2,48 +2,42 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-21 (evening), read this first
+## Session handoff — 2026-07-21 (later evening), read this first
 
-**Status: visually verified, builds clean, not committed yet.** Follow-up
-to the "what's coming" preview added earlier today (already committed):
-the cards in that preview now show the event's date (not just time), and
-a pencil icon to edit inline.
+**Status: visually verified, builds clean, not committed yet.** Small
+calendar-strip quality-of-life fix.
 
-**What changed:**
-- `EventRow` gained two new params: `showsDate` (prepends e.g. "Tue, Jul
-  21 · " before the time range — off by default, since the same-day
-  agenda list already implies the date via the selected day) and `onEdit`
-  (shows a trailing pencil `Button` when set).
-- `AgendaView`'s upcoming-events cards now pass `showsDate: true` and
-  `onEdit: { editingEvent = event }`, wired to a new
-  `@State private var editingEvent: Event?` + `.sheet(item:)` that opens
-  `AddEditEventView` directly — no detour through the detail screen.
-- The card itself is a real `Button` (not `.onTapGesture`) wrapping
-  `EventRow`, with the pencil as a nested `Button` inside it. Nested
-  buttons are flaky inside `List` rows, but this card lives in a plain
-  `ScrollView`/`VStack`, where hit-testing correctly disambiguates: tapping
-  the pencil's bounds triggers only the pencil, tapping elsewhere on the
-  card triggers navigation to detail. Confirmed both work independently
-  via UI automation (tapping the card body → detail screen; tapping the
-  pencil → "Edit Event" sheet, pre-filled, separately from tapping the
-  card).
-- Earlier draft used `.onTapGesture` on a plain (non-Button) container for
-  the card body — reverted after discovering it isn't exposed as an
-  accessibility-actionable element (UI automation couldn't target it, and
-  neither would VoiceOver). Real `Button`s avoid that.
+**What changed:** tapping a day in the horizontal calendar strip
+(`CalendarStripView`) now scrolls that day to the center of the strip,
+animated. Previously the tapped day just got the selected-highlight
+wherever it happened to be sitting (e.g. jammed against the left or
+right edge), which felt static. The `ForEach`'s `.onTapGesture` now calls
+`proxy.scrollTo(day, anchor: .center)` inside `withAnimation` alongside
+setting `selectedDate`, using the same `ScrollViewReader` the view
+already had for its initial-appearance centering.
 
-**Update, same session:** the pencil/inline-edit was extended to the
-same-day agenda list too (the one below the calendar strip, for a day
-that *does* have events) — no longer just the "what's coming" preview.
-`EventRow`'s `onEdit` param is passed there now as well, with
-`showsDate` left off (the selected day already implies the date). Verified
-via UI automation on Jul 21's "Test 1" event: pencil opens "Edit Event"
-pre-filled, tapping the card body elsewhere still navigates to detail —
-both work independently, same as the upcoming-preview cards.
+**How it was verified:** the day cells use `.onTapGesture` (not `Button`),
+so — same as the EventRow issue noted in an earlier handoff — they aren't
+exposed as accessibility-actionable targets and the `tap` automation tool
+can't target them directly by elementRef. Worked around it with the
+lower-level `touch` tool (`down: true, up: true`) aimed at a day cell's
+text sub-element, which *does* register as a real touch at that element's
+screen coordinates regardless of its accessibility role. Confirmed both
+directions: tapping a day pinned to the strip's left edge (17, in a
+17–23 window) re-centered it to a 14–20 window with 17 in the middle
+(4th of 7); tapping a day pinned to the right edge (20, in a 14–20
+window) re-centered back to 17–23 with 20 in the middle. Selection
+highlight and centering both landed correctly each time.
+
+**Worth flagging, not fixed this session:** the day cells still use
+`.onTapGesture` rather than `Button`, meaning (like the pre-fix EventRow
+issue) they likely aren't reachable via VoiceOver either. Out of scope
+for "make it snap to center," but worth a dedicated pass if accessibility
+matters for the course deliverable.
 
 **Next steps for whoever picks this up:**
-1. `git status` will show `EventRow.swift` and `AgendaView.swift`
-   modified — review the diff, then commit and push.
+1. `git status` will show `CalendarStripView.swift` modified — review the
+   diff, then commit and push.
 
 ## Phase 0 — Before writing app code
 - [ ] Finish 3 user conversations about scheduling pain points (Homework #3, due before Session 3)
