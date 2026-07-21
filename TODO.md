@@ -123,6 +123,32 @@ middle.
 - [ ] Live demo script — pick 1–2 conflict scenarios that showcase the differentiator clearly
 - [ ] Reflection notes: what you learned, what you'd do differently
 
+## Ideas discussed, feasibility-checked, not started (2026-07-21 evening)
+Brainstormed with Claude; not built, just captured so the reasoning doesn't
+have to be redone. Neither is blocking MVP — pick up only if time allows.
+
+- [ ] **Event reminder notifications.** User picks an offset (e.g. 5 min /
+  1 hour / 1 day / 1 week before) when creating/editing an event; Keel
+  fires a local notification at that time. This is *local* notifications
+  (`UNUserNotificationCenter`, scheduled on-device), not true push — no
+  backend/APNs needed, which fits Keel's no-backend architecture. Already
+  implicitly in scope per the line below ("push notifications *beyond*
+  basic local reminders" is what's excluded, not local reminders
+  themselves). Rough shape: add a reminder-offset field to `Event`, a
+  picker in `AddEditEventView` next to the existing Flexibility picker,
+  and a scheduler that creates/cancels a `UNNotificationRequest` (keyed to
+  the event's `id`) on save/edit/delete.
+- [ ] **QR code event sharing.** Generate a QR code for an event (via
+  `CIFilter`'s built-in `CIQRCodeGenerator`, no third-party dependency)
+  encoding the event as a standard iCalendar `VEVENT` text block — reusing
+  an existing format rather than inventing one. Another Keel user scans it
+  with an in-app camera scanner (AVFoundation) to import the event
+  locally. No server needed since the QR carries the full event data
+  itself. Constraint: only works between two people who both have Keel
+  installed (no web fallback for non-users) — but that's consistent with
+  Keel's existing "manually ingest other people's commitments" design;
+  this would just make that manual step faster.
+
 ## Explicitly not doing for MVP (revisit only if time allows)
 - [ ] Multi-user accounts / shared household view
 - [ ] Calendar sync (Google/Apple/Outlook)
