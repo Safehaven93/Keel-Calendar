@@ -2,6 +2,45 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
+## Session handoff — 2026-07-20/21, read this first
+
+**In progress, not yet committed:** month-picker "busyness" shading. The idea:
+in `MonthCalendarPicker.swift`, each day cell's fill now uses
+`Color("AccentColor").opacity(...)`, scaled by how many events land on that
+day (`AgendaView.eventCountByDay`, capped at 4+ events = darkest shade via
+`MonthCalendarPicker.busyCountCap`). Selection changed from a solid fill to
+a stroked ring (`Circle().stroke(...)`) so it doesn't visually collide with
+the busyness fill. Files touched: `MonthCalendarPicker.swift`,
+`CalendarStripView.swift`, `AgendaView.swift`.
+
+**Status: implemented and builds clean, but NOT visually verified yet.**
+`git status` will show these three files modified and uncommitted — do not
+assume they're done until someone has actually looked at the calendar with
+a mix of light/busy days and confirmed:
+- shading is visibly distinguishable between e.g. 1 event vs 4+ events
+- text stays legible at the darkest shade (currently switches to white
+  text above 50% fill opacity — may need tuning)
+- the selected-day ring reads clearly against both light and dark fills
+
+**Why this is unverified:** UI automation (tap/swipe) wasn't available in
+XcodeBuildMCP this session — only build/run/screenshot. A
+`.xcodebuildmcp/config.yaml` enabling `ui-automation` was created at
+`~/.xcodebuildmcp/config.yaml` but needed an MCP reconnect to take effect,
+which didn't work reliably from the VS Code extension's `/mcp` command.
+Plan was to restart Claude Code entirely to pick up the new tools, then
+verify this feature interactively (add events across several days, open
+the month picker, tap through, screenshot).
+
+**Next steps for whoever picks this up:**
+1. Confirm UI automation tools (`tap`, `swipe`, etc.) are now available.
+2. Add events on a few different days with varying counts, open the month
+   picker, and visually confirm the shading/legibility/ring points above.
+3. Tune `MonthCalendarPicker.busyCountCap` / the `0.15...0.65` opacity
+   range in `busynessFillOpacity(for:)` if the contrast is too subtle or
+   too aggressive.
+4. Commit and push once confirmed — nothing from this feature has been
+   committed yet.
+
 ## Phase 0 — Before writing app code
 - [ ] Finish 3 user conversations about scheduling pain points (Homework #3, due before Session 3)
 - [ ] Confirm project plan with team (Homework #3/4)
