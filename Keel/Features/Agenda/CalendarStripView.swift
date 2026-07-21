@@ -8,6 +8,7 @@ import SwiftUI
 struct CalendarStripView: View {
     @Binding var selectedDate: Date
     let conflictDays: Set<CalendarDay>
+    let eventCountByDay: [CalendarDay: Int]
     @State private var windowCenter = Calendar.current.startOfDay(for: .now)
     @State private var isShowingMonthPicker = false
     @State private var pickerDate = Date.now
@@ -66,7 +67,7 @@ struct CalendarStripView: View {
         }
         .sheet(isPresented: $isShowingMonthPicker) {
             NavigationStack {
-                MonthCalendarPicker(selectedDate: $pickerDate, conflictDays: conflictDays)
+                MonthCalendarPicker(selectedDate: $pickerDate, conflictDays: conflictDays, eventCountByDay: eventCountByDay)
                     .padding()
                     .navigationTitle("Select a date")
                     .navigationBarTitleDisplayMode(.inline)
@@ -80,6 +81,7 @@ struct CalendarStripView: View {
                     }
             }
             .presentationDetents([.medium, .large])
+            .presentationBackground(Color("Surface"))
         }
     }
 

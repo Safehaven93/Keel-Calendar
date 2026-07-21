@@ -25,15 +25,22 @@ struct CalendarDay: Hashable {
 struct MonthCalendarPicker: View {
     @Binding var selectedDate: Date
     let conflictDays: Set<CalendarDay>
+    let eventCountByDay: [CalendarDay: Int]
 
     @State private var displayedMonth: Date
 
     private let calendar = Calendar.current
     private let today = Calendar.current.startOfDay(for: .now)
 
-    init(selectedDate: Binding<Date>, conflictDays: Set<CalendarDay>) {
+    /// Event counts at/above this map to full-strength fill — a handful of
+    /// commitments already reads as "busy" for this app's target user, so
+    /// the ramp shouldn't need a packed day to reach its darkest shade.
+    private static let busyCountCap = 4.0
+
+    init(selectedDate: Binding<Date>, conflictDays: Set<CalendarDay>, eventCountByDay: [CalendarDay: Int]) {
         _selectedDate = selectedDate
         self.conflictDays = conflictDays
+        self.eventCountByDay = eventCountByDay
         _displayedMonth = State(initialValue: Calendar.current.startOfDay(for: selectedDate.wrappedValue))
     }
 
@@ -102,6 +109,8 @@ struct MonthCalendarPicker: View {
         let isSelected = calendar.isDate(day, inSameDayAs: selectedDate)
         let isToday = calendar.isDate(day, inSameDayAs: today)
         let hasConflict = conflictDays.contains(CalendarDay(day, calendar: calendar))
+        let busyness = busynessFillOpacity(for: day)
+        let usesLightText = busyness > 0.5
 
         return Button {
             selectedDate = day
@@ -109,10 +118,13 @@ struct MonthCalendarPicker: View {
             ZStack(alignment: .topTrailing) {
                 Text("\(calendar.component(.day, from: day))")
                     .font(.body.weight(isToday ? .bold : .regular))
-                    .foregroundStyle(isSelected ? .white : Color("TextPrimary"))
+                    .foregroundStyle(usesLightText ? .white : Color("TextPrimary"))
                     .frame(maxWidth: .infinity, minHeight: 40)
-                    .background(isSelected ? Color("AccentColor") : Color.clear)
+                    .background(Color("AccentColor").opacity(busyness))
                     .clipShape(Circle())
+                    .overlay(
+                        Circle().stroke(Color("AccentColor"), lineWidth: isSelected ? 2 : 0)
+                    )
 
                 if hasConflict {
                     Circle()
@@ -123,6 +135,18 @@ struct MonthCalendarPicker: View {
             }
         }
         .buttonStyle(.plain)
+    }
+
+    /// Maps a day's event count onto the accent color's own opacity range,
+    /// rather than introducing a new hue — DESIGN.md keeps this app to a
+    /// single accent color, and reusing it here (a subtle tint at low
+    /// counts up to a solid, deeper fill at high counts) extends that one
+    /// voice instead of competing with it.
+    private func busynessFillOpacity(for day: Date) -> Double {
+        let count = eventCountByDay[CalendarDay(day, calendar: calendar)] ?? 0
+        guard count > 0 else { return 0 }
+        let fraction = min(Double(count), Self.busyCountCap) / Self.busyCountCap
+        return 0.15 + fraction * 0.65
     }
 
     private func changeMonth(by offset: Int) {

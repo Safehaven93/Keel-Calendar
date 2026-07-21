@@ -21,7 +21,7 @@ struct AgendaView: View {
                 Color("Background").ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    CalendarStripView(selectedDate: $selectedDate, conflictDays: conflictDays)
+                    CalendarStripView(selectedDate: $selectedDate, conflictDays: conflictDays, eventCountByDay: eventCountByDay)
 
                     Text("Agenda")
                         .font(.title2.weight(.semibold))
@@ -123,6 +123,11 @@ struct AgendaView: View {
     /// exclamation-mark decoration.
     private var conflictDays: Set<CalendarDay> {
         Set(events.filter { $0.unresolvedConflictEventID != nil }.map { CalendarDay($0.startDate) })
+    }
+
+    /// Event counts per day, for the month picker's busyness shading.
+    private var eventCountByDay: [CalendarDay: Int] {
+        Dictionary(events.map { (CalendarDay($0.startDate), 1) }, uniquingKeysWith: +)
     }
 }
 
