@@ -2,38 +2,50 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-21 (later evening), read this first
+## Session handoff — 2026-07-21 (still later evening), read this first
 
-**Status: visually verified, builds clean, not committed yet.** Small
-calendar-strip quality-of-life fix.
+**Status: visually verified, builds clean, not committed yet.** Added a
+"Today" button to the calendar strip, top-right, aligned with the
+"July 2026" month label — only visible when the selected day isn't
+today; tapping it jumps back and re-centers.
 
-**What changed:** tapping a day in the horizontal calendar strip
-(`CalendarStripView`) now scrolls that day to the center of the strip,
-animated. Previously the tapped day just got the selected-highlight
-wherever it happened to be sitting (e.g. jammed against the left or
-right edge), which felt static. The `ForEach`'s `.onTapGesture` now calls
-`proxy.scrollTo(day, anchor: .center)` inside `withAnimation` alongside
-setting `selectedDate`, using the same `ScrollViewReader` the view
-already had for its initial-appearance centering.
+**What changed, and a real bug it surfaced:** the naive first pass
+reused the existing `jump(to:)` (the function the month-picker "Done"
+button calls), which re-centers by setting `windowCenter` and relying on
+a `.id(windowCenter)`-triggered view recreation + `.task` to re-run
+`proxy.scrollTo`. That works for the month picker because it's jumping to
+an arbitrary, usually-different month. But the Today button often taps
+back to a `windowCenter` that's *already* `today` (nothing changed it —
+per-day taps only move `selectedDate`, not `windowCenter`) — so the id
+never changes, the task never re-fires, and the strip silently failed to
+scroll even though the correct day got selected/highlighted. Caught this
+by screenshotting after tapping "Today" and seeing today's cell
+correctly highlighted but pinned to the strip's edge instead of centered
+— the same "static" complaint that prompted the per-tap centering fix
+earlier this session, just via a different code path.
 
-**How it was verified:** the day cells use `.onTapGesture` (not `Button`),
-so — same as the EventRow issue noted in an earlier handoff — they aren't
-exposed as accessibility-actionable targets and the `tap` automation tool
-can't target them directly by elementRef. Worked around it with the
-lower-level `touch` tool (`down: true, up: true`) aimed at a day cell's
-text sub-element, which *does* register as a real touch at that element's
-screen coordinates regardless of its accessibility role. Confirmed both
-directions: tapping a day pinned to the strip's left edge (17, in a
-17–23 window) re-centered it to a 14–20 window with 17 in the middle
-(4th of 7); tapping a day pinned to the right edge (20, in a 14–20
-window) re-centered back to 17–23 with 20 in the middle. Selection
-highlight and centering both landed correctly each time.
+**Fix:** restructured `CalendarStripView` so `ScrollViewReader` wraps the
+whole view (header included), not just the day strip — giving the header
+buttons direct access to the scroll `proxy`. Extracted a `select(_:proxy:)`
+helper that both per-day taps and the "Today" button now call: it sets
+`selectedDate` and does an immediate `proxy.scrollTo(day, anchor: .center)`
+in `withAnimation`, no longer routed through `windowCenter`/`jump(to:)` at
+all. Separately, swapped the old `.task { } .id(windowCenter)`
+destroy-and-recreate trick for `.task(id: windowCenter) { }`, which
+re-runs the re-center task when `windowCenter` changes (still needed for
+month-picker jumps, which *can* land outside the current ±180-day
+window) without tearing down and rebuilding the `ScrollViewReader` — so
+the same long-lived `proxy` stays valid for `select` to use directly.
 
-**Worth flagging, not fixed this session:** the day cells still use
-`.onTapGesture` rather than `Button`, meaning (like the pre-fix EventRow
-issue) they likely aren't reachable via VoiceOver either. Out of scope
-for "make it snap to center," but worth a dedicated pass if accessibility
-matters for the course deliverable.
+**Verified via UI automation** (same `touch` down/up workaround as the
+prior centering fix, since day cells and now the "Today" button use
+non-`Button` or otherwise-untargetable-by-`tap` accessibility roles in
+some cases): tapped day 17 away from today (20) → "Today" button
+appeared top-right → tapped it → strip re-centered on 20 (17–23 window,
+20 in the middle) and the button disappeared. Also re-verified the
+month-picker jump path still works post-refactor: jumped to Jul 5 via
+the month grid → strip correctly centered on a 2–8 window with 5 in the
+middle.
 
 **Next steps for whoever picks this up:**
 1. `git status` will show `CalendarStripView.swift` modified — review the

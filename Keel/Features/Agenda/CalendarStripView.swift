@@ -17,33 +17,46 @@ struct CalendarStripView: View {
     private var days: [Date] { AgendaViewModel.dayRange(around: windowCenter, days: 180) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Button {
-                pickerDate = selectedDate
-                isShowingMonthPicker = true
-            } label: {
-                HStack(spacing: 4) {
-                    Text(selectedDate, format: .dateTime.month(.wide).year())
-                        .font(.subheadline.weight(.semibold))
-                    Image(systemName: "chevron.down")
-                        .font(.caption2.weight(.semibold))
-                }
-                .foregroundStyle(Color("TextPrimary"))
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
+        ScrollViewReader { proxy in
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Button {
+                        pickerDate = selectedDate
+                        isShowingMonthPicker = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(selectedDate, format: .dateTime.month(.wide).year())
+                                .font(.subheadline.weight(.semibold))
+                            Image(systemName: "chevron.down")
+                                .font(.caption2.weight(.semibold))
+                        }
+                        .foregroundStyle(Color("TextPrimary"))
+                    }
 
-            ScrollViewReader { proxy in
+                    Spacer()
+
+                    if !Calendar.current.isDate(selectedDate, inSameDayAs: today) {
+                        Button("Today") {
+                            select(today, proxy: proxy)
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color("AccentColor"))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color("AccentTint"))
+                        .clipShape(Capsule())
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: 10) {
                         ForEach(days, id: \.self) { day in
                             dayCell(day)
                                 .id(day)
                                 .onTapGesture {
-                                    selectedDate = day
-                                    withAnimation {
-                                        proxy.scrollTo(day, anchor: .center)
-                                    }
+                                    select(day, proxy: proxy)
                                 }
                         }
                     }
@@ -53,22 +66,18 @@ struct CalendarStripView: View {
                 .frame(height: 80)
                 // A plain .onAppear scrollTo can undershoot against a
                 // LazyHStack this large before it's finished its first
-                // layout pass; deferring one runloop tick via .task gives
-                // it time to measure nearby cells first, which is enough
-                // for scrollTo to land correctly. Re-fires whenever
-                // windowCenter changes (id below forces recreation), so
-                // jumping via the month picker re-centers too.
-                .task {
+                // layout pass; deferring one runloop tick gives it time to
+                // measure nearby cells first, which is enough for scrollTo
+                // to land correctly. task(id:) re-runs whenever windowCenter
+                // changes (only from a month-picker jump landing outside
+                // the current ±180-day window) without tearing down and
+                // recreating the whole strip/proxy, which `select` below
+                // relies on staying alive for its own direct scrollTo.
+                .task(id: windowCenter) {
                     try? await Task.sleep(nanoseconds: 50_000_000)
                     proxy.scrollTo(windowCenter, anchor: .center)
                 }
             }
-            // Keying on windowCenter forces the whole strip to recreate
-            // only when jumping via the month picker — not on every
-            // in-strip tap, which would otherwise snap the scroll
-            // position back to center each time and defeat manual
-            // scrolling.
-            .id(windowCenter)
         }
         .sheet(isPresented: $isShowingMonthPicker) {
             NavigationStack {
@@ -87,6 +96,19 @@ struct CalendarStripView: View {
             }
             .presentationDetents([.medium, .large])
             .presentationBackground(Color("Surface"))
+        }
+    }
+
+    /// Selects `day` and scrolls it to center immediately. Used by both
+    /// in-strip taps and the "Today" button — relies on `day` already
+    /// being inside the currently rendered ±180-day window, which holds
+    /// for everything except a month-picker jump that lands far outside
+    /// it (that path goes through `jump(to:)` instead, which re-centers
+    /// the window itself before scrolling).
+    private func select(_ day: Date, proxy: ScrollViewProxy) {
+        selectedDate = day
+        withAnimation {
+            proxy.scrollTo(day, anchor: .center)
         }
     }
 
