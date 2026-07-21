@@ -11,6 +11,7 @@ struct AgendaView: View {
     @Query(sort: \Event.startDate) private var events: [Event]
     @State private var path = NavigationPath()
     @State private var isAddingEvent = false
+    @State private var editingEvent: Event?
     @State private var selectedDate = Calendar.current.startOfDay(for: .now)
 
     private var viewModel: AgendaViewModel { AgendaViewModel(modelContext: modelContext) }
@@ -58,6 +59,9 @@ struct AgendaView: View {
             }
             .sheet(isPresented: $isAddingEvent) {
                 AddEditEventView(allEvents: events, defaultDate: selectedDate)
+            }
+            .sheet(item: $editingEvent) { event in
+                AddEditEventView(allEvents: events, editing: event)
             }
         }
     }
@@ -122,7 +126,12 @@ struct AgendaView: View {
                     Button {
                         handleTap(on: event)
                     } label: {
-                        EventRow(event: event, conflictPartnerTitle: conflictTitle(for: event))
+                        EventRow(
+                            event: event,
+                            conflictPartnerTitle: conflictTitle(for: event),
+                            showsDate: true,
+                            onEdit: { editingEvent = event }
+                        )
                     }
                     .buttonStyle(.plain)
                 }

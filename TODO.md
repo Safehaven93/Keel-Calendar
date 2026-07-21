@@ -2,40 +2,44 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-21 (later same day), read this first
+## Session handoff — 2026-07-21 (evening), read this first
 
-**Status: visually verified, builds clean, not committed yet.** Added an
-"upcoming events" fallback to the empty-day agenda state.
+**Status: visually verified, builds clean, not committed yet.** Follow-up
+to the "what's coming" preview added earlier today (already committed):
+the cards in that preview now show the event's date (not just time), and
+a pencil icon to edit inline.
 
-**What changed:** when the selected day has no events, the Agenda no
-longer just says "Nothing on the books." It now shows "Nothing today!
-But take a look at what's coming" and, below that, the soonest upcoming
-events — but only from the highest-priority `Flexibility` tier that has
-any: `fixed` first, then `somewhatFlexible`, then `veryFlexible`
-(`AgendaViewModel.upcomingPriorityEvents(after:from:limit:)`). So a
-far-off fixed commitment outranks a sooner flexible one; flexible events
-only surface once there's nothing more fixed on the horizon. Capped at 5
-events, no explicit day-window cutoff.
-
-Verified interactively via UI automation:
-- fixed event 2 days out correctly showed, and correctly suppressed a
-  *sooner* (1 day out) somewhat-flexible event — confirms tier priority
-  beats chronological order
-- deleting the fixed event immediately surfaced the somewhat-flexible
-  one that had been suppressed — confirms the tier-fallback works, not
-  just tier-1-or-nothing
-
-Also confirmed: with no upcoming events of any tier, the headline shows
-alone with no list below it — reads cleanly, no leftover empty spacing.
+**What changed:**
+- `EventRow` gained two new params: `showsDate` (prepends e.g. "Tue, Jul
+  21 · " before the time range — off by default, since the same-day
+  agenda list already implies the date via the selected day) and `onEdit`
+  (shows a trailing pencil `Button` when set).
+- `AgendaView`'s upcoming-events cards now pass `showsDate: true` and
+  `onEdit: { editingEvent = event }`, wired to a new
+  `@State private var editingEvent: Event?` + `.sheet(item:)` that opens
+  `AddEditEventView` directly — no detour through the detail screen.
+- The card itself is a real `Button` (not `.onTapGesture`) wrapping
+  `EventRow`, with the pencil as a nested `Button` inside it. Nested
+  buttons are flaky inside `List` rows, but this card lives in a plain
+  `ScrollView`/`VStack`, where hit-testing correctly disambiguates: tapping
+  the pencil's bounds triggers only the pencil, tapping elsewhere on the
+  card triggers navigation to detail. Confirmed both work independently
+  via UI automation (tapping the card body → detail screen; tapping the
+  pencil → "Edit Event" sheet, pre-filled, separately from tapping the
+  card).
+- Earlier draft used `.onTapGesture` on a plain (non-Button) container for
+  the card body — reverted after discovering it isn't exposed as an
+  accessibility-actionable element (UI automation couldn't target it, and
+  neither would VoiceOver). Real `Button`s avoid that.
 
 **Next steps for whoever picks this up:**
-1. `git status` will show `AgendaView.swift` and `AgendaViewModel.swift`
+1. `git status` will show `EventRow.swift` and `AgendaView.swift`
    modified — review the diff, then commit and push.
-2. Not yet tested: the `veryFlexible` fallback tier specifically (only
-   fixed → somewhatFlexible was exercised this session).
-3. No explicit "near future" day cutoff was implemented — it always shows
-   the soonest events of the best available tier, however far out. Revisit
-   if that reads as too permissive once there's real usage data.
+2. The same-day agenda list (below the calendar strip, for a day that
+   *does* have events) doesn't have the pencil/inline-edit — only the
+   "what's coming" preview does, per what was asked for. Worth asking
+   whether that inconsistency should be resolved (add it everywhere, or
+   leave the same-day list as swipe-to-delete + tap-to-detail-then-edit).
 
 ## Phase 0 — Before writing app code
 - [ ] Finish 3 user conversations about scheduling pain points (Homework #3, due before Session 3)

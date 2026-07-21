@@ -6,6 +6,14 @@ import SwiftUI
 struct EventRow: View {
     let event: Event
     let conflictPartnerTitle: String?
+    /// Prepends the event's date to the time line — off by default since
+    /// same-day agenda lists already imply the date via the selected day;
+    /// the "what's coming" preview on an empty day spans multiple days, so
+    /// it needs the date spelled out.
+    var showsDate: Bool = false
+    /// When set, shows a trailing pencil button that calls this instead of
+    /// requiring a trip through the event detail screen to edit.
+    var onEdit: (() -> Void)? = nil
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -14,9 +22,7 @@ struct EventRow: View {
                 .frame(width: 3)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(event.startDate...event.endDate)
-                    .font(.footnote.monospacedDigit())
-                    .foregroundStyle(Color("TextSecondary"))
+                timeLine
                 Text(event.title)
                     .font(.body.weight(.semibold))
                     .foregroundStyle(Color("TextPrimary"))
@@ -31,9 +37,32 @@ struct EventRow: View {
             }
             .padding(.leading, 13)
             Spacer(minLength: 0)
+
+            if let onEdit {
+                Button(action: onEdit) {
+                    Image(systemName: "pencil")
+                        .foregroundStyle(Color("TextSecondary"))
+                        .padding(8)
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding(16)
         .background(Color("Surface"))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    @ViewBuilder
+    private var timeLine: some View {
+        let time = Text(event.startDate...event.endDate)
+        Group {
+            if showsDate {
+                Text(event.startDate, format: .dateTime.weekday(.abbreviated).month().day()) + Text(" · ") + time
+            } else {
+                time
+            }
+        }
+        .font(.footnote.monospacedDigit())
+        .foregroundStyle(Color("TextSecondary"))
     }
 }
