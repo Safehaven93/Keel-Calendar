@@ -86,7 +86,11 @@ struct AgendaView: View {
                             Button {
                                 handleTap(on: event)
                             } label: {
-                                EventRow(event: event, conflictPartnerTitle: conflictTitle(for: event))
+                                EventRow(
+                                    event: event,
+                                    conflictPartnerTitle: conflictTitle(for: event),
+                                    onEdit: { editingEvent = event }
+                                )
                             }
                             .buttonStyle(.plain)
                             .swipeActions {

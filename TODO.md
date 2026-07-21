@@ -32,14 +32,18 @@ a pencil icon to edit inline.
   accessibility-actionable element (UI automation couldn't target it, and
   neither would VoiceOver). Real `Button`s avoid that.
 
+**Update, same session:** the pencil/inline-edit was extended to the
+same-day agenda list too (the one below the calendar strip, for a day
+that *does* have events) — no longer just the "what's coming" preview.
+`EventRow`'s `onEdit` param is passed there now as well, with
+`showsDate` left off (the selected day already implies the date). Verified
+via UI automation on Jul 21's "Test 1" event: pencil opens "Edit Event"
+pre-filled, tapping the card body elsewhere still navigates to detail —
+both work independently, same as the upcoming-preview cards.
+
 **Next steps for whoever picks this up:**
 1. `git status` will show `EventRow.swift` and `AgendaView.swift`
    modified — review the diff, then commit and push.
-2. The same-day agenda list (below the calendar strip, for a day that
-   *does* have events) doesn't have the pencil/inline-edit — only the
-   "what's coming" preview does, per what was asked for. Worth asking
-   whether that inconsistency should be resolved (add it everywhere, or
-   leave the same-day list as swipe-to-delete + tap-to-detail-then-edit).
 
 ## Phase 0 — Before writing app code
 - [ ] Finish 3 user conversations about scheduling pain points (Homework #3, due before Session 3)
