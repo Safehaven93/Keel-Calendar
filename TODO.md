@@ -125,7 +125,7 @@ middle.
 
 ## Ideas discussed, feasibility-checked, not started (2026-07-21 evening)
 Brainstormed with Claude; not built, just captured so the reasoning doesn't
-have to be redone. Neither is blocking MVP — pick up only if time allows.
+have to be redone. None of these block MVP — pick up only if time allows.
 
 - [ ] **Event reminder notifications.** User picks an offset (e.g. 5 min /
   1 hour / 1 day / 1 week before) when creating/editing an event; Keel
@@ -148,6 +148,31 @@ have to be redone. Neither is blocking MVP — pick up only if time allows.
   installed (no web fallback for non-users) — but that's consistent with
   Keel's existing "manually ingest other people's commitments" design;
   this would just make that manual step faster.
+- [ ] **Shared-event time suggestions.** Propose an event with someone
+  else (e.g. "Saturday" with your girlfriend) and have Keel suggest a
+  time that avoids both people's fixed commitments — e.g. you're booked
+  11am–1pm, she's booked 7–9pm, Keel suggests 3–5pm. Meaningfully bigger
+  lift than the two ideas above: since there's no backend, both
+  schedules can only meet via a **two-step peer-to-peer exchange**, not
+  a single share:
+  1. You share a draft event for a date, with a payload of just your
+     busy time-blocks that day (not full event details — how much to
+     expose is a privacy decision worth making deliberately).
+  2. Her Keel receives it, combines it with her own local events for
+     that day, and computes free windows avoiding both people's fixed
+     commitments — this should reuse/extend the existing conflict
+     engine (`ConflictEngine`/`SKILL.md` prioritization) generalized
+     from one schedule to two, rather than new logic from scratch.
+  3. She picks a slot and shares it back to confirm — a second
+     round-trip, since nothing syncs automatically without a server.
+
+  This is conceptually adjacent to "multi-user accounts" (excluded
+  below) but meaningfully different — per-event peer-to-peer sharing,
+  not persistent account/calendar syncing — so it doesn't actually
+  cross that line. It's also a strong thematic fit: it's "conflict
+  detection + prioritization" extended from one person to two, which is
+  Keel's hero differentiator per `CLAUDE.md`. Worth prototyping only if
+  the core single-user conflict engine is rock solid first.
 
 ## Explicitly not doing for MVP (revisit only if time allows)
 - [ ] Multi-user accounts / shared household view
