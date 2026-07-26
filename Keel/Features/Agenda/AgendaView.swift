@@ -13,6 +13,7 @@ struct AgendaView: View {
     @State private var isAddingEvent = false
     @State private var editingEvent: Event?
     @State private var selectedDate = Calendar.current.startOfDay(for: .now)
+    @State private var categoryFilter: EventCategory?
 
     private var viewModel: AgendaViewModel { AgendaViewModel(modelContext: modelContext) }
 
@@ -24,13 +25,16 @@ struct AgendaView: View {
                 VStack(spacing: 0) {
                     CalendarStripView(selectedDate: $selectedDate, conflictDays: conflictDays, eventCountByDay: eventCountByDay)
 
-                    Text("Agenda")
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color("TextPrimary"))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 8)
-                        .padding(.bottom, 12)
+                    HStack {
+                        Text("Agenda")
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(Color("TextPrimary"))
+                        Spacer()
+                        categoryFilterMenu
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 12)
 
                     contentArea
                 }
@@ -76,7 +80,7 @@ struct AgendaView: View {
                 .padding(.horizontal, 40)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         } else {
-            let dayEvents = viewModel.events(on: selectedDate, from: events)
+            let dayEvents = viewModel.events(on: selectedDate, from: filteredEvents)
             if dayEvents.isEmpty {
                 emptyDayContent
             } else {
@@ -115,7 +119,7 @@ struct AgendaView: View {
     /// that has some (fixed, then somewhat flexible, then very flexible).
     @ViewBuilder
     private var emptyDayContent: some View {
-        let upcoming = viewModel.upcomingPriorityEvents(after: selectedDate, from: events)
+        let upcoming = viewModel.upcomingPriorityEvents(after: selectedDate, from: filteredEvents)
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Nothing today! But take a look at what's coming")
@@ -160,14 +164,67 @@ struct AgendaView: View {
     }
 
     /// Days containing an unresolved conflict, for the month picker's
-    /// exclamation-mark decoration.
+    /// exclamation-mark decoration. Reflects the active category filter, so
+    /// the badge only marks conflicts among events actually being shown.
     private var conflictDays: Set<CalendarDay> {
-        Set(events.filter { $0.unresolvedConflictEventID != nil }.map { CalendarDay($0.startDate) })
+        Set(filteredEvents.filter { $0.unresolvedConflictEventID != nil }.map { CalendarDay($0.startDate) })
     }
 
     /// Event counts per day, for the month picker's busyness shading.
+    /// Reflects the active category filter, so picking e.g. "Exercise"
+    /// shades the month by exercise days specifically — that's the whole
+    /// point of the filter, letting a user spot where a category clusters.
     private var eventCountByDay: [CalendarDay: Int] {
-        Dictionary(events.map { (CalendarDay($0.startDate), 1) }, uniquingKeysWith: +)
+        Dictionary(filteredEvents.map { (CalendarDay($0.startDate), 1) }, uniquingKeysWith: +)
+    }
+
+    /// All events when no filter is active, otherwise only events matching
+    /// `categoryFilter`. Drives the day list, the "what's coming" preview,
+    /// and the month-picker shading/conflict badges — everywhere the
+    /// filter should visibly narrow what's shown. Conflict-partner lookups
+    /// (`conflictTitle`, `handleTap`) deliberately keep using the
+    /// unfiltered `events`, since a conflict is a real relationship
+    /// between two events regardless of which category is being viewed.
+    private var filteredEvents: [Event] {
+        guard let categoryFilter else { return events }
+        return events.filter { $0.category == categoryFilter }
+    }
+
+    private var categoryFilterMenu: some View {
+        Menu {
+            Button {
+                categoryFilter = nil
+            } label: {
+                if categoryFilter == nil {
+                    Label("All Categories", systemImage: "checkmark")
+                } else {
+                    Text("All Categories")
+                }
+            }
+            ForEach(EventCategory.allCases) { category in
+                Button {
+                    categoryFilter = category
+                } label: {
+                    if categoryFilter == category {
+                        Label(category.label, systemImage: "checkmark")
+                    } else {
+                        Text(category.label)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(categoryFilter?.label ?? "All Categories")
+                    .font(.subheadline.weight(.semibold))
+                Image(systemName: "chevron.down")
+                    .font(.caption2.weight(.semibold))
+            }
+            .foregroundStyle(categoryFilter == nil ? Color("TextSecondary") : Color("AccentColor"))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color("Surface"))
+            .clipShape(Capsule())
+        }
     }
 }
 
