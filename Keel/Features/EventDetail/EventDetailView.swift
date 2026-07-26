@@ -50,9 +50,15 @@ struct EventDetailView: View {
 
     private var heroCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(event.flexibility.label.uppercased())
-                .font(.caption.weight(.bold))
-                .foregroundStyle(Color("AccentColor"))
+            HStack(spacing: 6) {
+                Text(event.flexibility.label.uppercased())
+                if let category = event.category {
+                    Text("·")
+                    Text(category.label.uppercased())
+                }
+            }
+            .font(.caption.weight(.bold))
+            .foregroundStyle(Color("AccentColor"))
             Text(event.title)
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(Color("TextPrimary"))

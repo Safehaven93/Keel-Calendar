@@ -2,12 +2,49 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-26, read this first
+## Session handoff — 2026-07-26 (evening), read this first
 
-**Status: clean.** `Delete Event` button (Add/Edit Event screen) from
-earlier today is committed and pushed. Nothing pending in `git status`.
-See the "Event categories + time-spent tracking" entry below — that's
-the next thing on deck, likely picked up later tonight.
+**Status: visually verified, builds clean, not committed yet.** Started
+on the "Event categories + time-spent tracking" idea from below — this
+is sub-piece 1 (category field) only. Sub-pieces 2 (filter the calendar
+by category) and 3 (monthly time-spent breakdown) are NOT started.
+
+**What changed:**
+- New `EventCategory` enum in `Event.swift` (`.family` / `.exercise` /
+  `.recreational`, fixed presets per the plan below), mirroring
+  `Flexibility`'s shape. `Event` gained an optional `var category:
+  EventCategory?` field (defaults `nil` — "uncategorized" is valid).
+- `AddEditEventViewModel` reads/writes `category` the same way it
+  already does `flexibility`.
+- `AddEditEventView`'s "More details" section gained a "Category" row:
+  capsule chip buttons (`categoryChip(_:)`), one per case. Unlike the
+  required Flexibility cards, category is optional, so tapping the
+  already-selected chip deselects it back to `nil` — there's no separate
+  "None" option, the toggle *is* the None control.
+- `EventDetailView`'s hero card now shows the category next to the
+  flexibility label when set (e.g. "SOMEWHAT FLEXIBLE · EXERCISE"),
+  purely so there's a way to see it stuck after saving — this wasn't
+  asked for by name but was needed to verify the round-trip, and doubles
+  as the only place it's visible today until filtering/reporting exist.
+
+**Verified via UI automation:** created "Soccer practice", expanded More
+details, confirmed all three chips render, tapped Exercise (fills solid,
+matches flexibility-card selected style), saved, opened the event detail
+screen and confirmed "SOMEWHAT FLEXIBLE · EXERCISE" appears. Reopened for
+edit, confirmed Exercise reads as pre-selected. Tapped Exercise again to
+deselect, saved, reopened detail — confirmed the category is gone
+(back to just "SOMEWHAT FLEXIBLE"), proving the deselect-to-nil path
+round-trips correctly too. Also confirmed no schema-migration crash on
+launch (SwiftData lightweight-migrated the existing store fine after
+adding the new optional field).
+
+**Next steps for whoever picks this up:**
+1. `git status` will show `Event.swift`, `AddEditEventViewModel.swift`,
+   `AddEditEventView.swift`, `EventDetailView.swift` modified — review
+   the diff, then commit and push.
+2. Sub-piece 2 (filter the calendar by category) and sub-piece 3
+   (monthly time-spent breakdown, with the brainstormed UI options) are
+   still open — see the full entry below for the plan.
 
 ## Session handoff — 2026-07-21 (still later evening), read this first
 

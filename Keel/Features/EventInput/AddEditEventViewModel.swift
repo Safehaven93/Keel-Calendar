@@ -10,6 +10,7 @@ final class AddEditEventViewModel {
     var startTime: Date
     var endTime: Date
     var flexibility: Flexibility = .somewhatFlexible
+    var category: EventCategory?
     var location: String = ""
     var notes: String = ""
     var showsMoreDetails = false
@@ -34,6 +35,7 @@ final class AddEditEventViewModel {
             startTime = event.startDate
             endTime = event.endDate
             flexibility = event.flexibility
+            category = event.category
             location = event.location ?? ""
             notes = event.notes ?? ""
         } else {
@@ -82,6 +84,7 @@ final class AddEditEventViewModel {
             editingEvent.startDate = resolvedStart
             editingEvent.endDate = resolvedEnd
             editingEvent.flexibility = flexibility
+            editingEvent.category = category
             editingEvent.location = trimmedLocation.isEmpty ? nil : trimmedLocation
             editingEvent.notes = trimmedNotes.isEmpty ? nil : trimmedNotes
             return editingEvent
@@ -92,7 +95,8 @@ final class AddEditEventViewModel {
                 endDate: resolvedEnd,
                 location: trimmedLocation.isEmpty ? nil : trimmedLocation,
                 notes: trimmedNotes.isEmpty ? nil : trimmedNotes,
-                flexibility: flexibility
+                flexibility: flexibility,
+                category: category
             )
             context.insert(event)
             return event

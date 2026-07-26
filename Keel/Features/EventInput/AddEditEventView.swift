@@ -61,6 +61,16 @@ struct AddEditEventView: View {
                                 chip {
                                     DatePicker("End time", selection: $viewModel.endTime, displayedComponents: .hourAndMinute)
                                 }
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Category")
+                                        .font(.footnote.weight(.semibold))
+                                        .foregroundStyle(Color("TextSecondary"))
+                                    HStack(spacing: 8) {
+                                        ForEach(EventCategory.allCases) { option in
+                                            categoryChip(option)
+                                        }
+                                    }
+                                }
                                 TextField("Location", text: $viewModel.location)
                                     .padding(12)
                                     .background(Color("Surface"))
@@ -163,6 +173,25 @@ struct AddEditEventView: View {
                 .foregroundStyle(isSelected ? .white : Color("TextPrimary"))
                 .background(isSelected ? Color("AccentColor") : Color("Surface"))
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Tapping the already-selected category deselects it — category is
+    /// optional, unlike flexibility, so there needs to be a way back to
+    /// "none" without a separate control.
+    private func categoryChip(_ option: EventCategory) -> some View {
+        let isSelected = viewModel.category == option
+        return Button {
+            viewModel.category = isSelected ? nil : option
+        } label: {
+            Text(option.label)
+                .font(.subheadline.weight(.medium))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .foregroundStyle(isSelected ? .white : Color("TextPrimary"))
+                .background(isSelected ? Color("AccentColor") : Color("Surface"))
+                .clipShape(Capsule())
         }
         .buttonStyle(.plain)
     }
