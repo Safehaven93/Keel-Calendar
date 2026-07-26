@@ -2,33 +2,32 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-21 (yet later evening), read this first
+## Session handoff — 2026-07-26, read this first
 
-**Status: visually verified, builds clean, not committed yet.** Month
-picker (the sheet opened by tapping the month label in the calendar
-strip) no longer needs a separate "Done" tap.
+**Status: visually verified, builds clean, not committed yet.** There
+was no way to delete an event short of editing it down to nothing, or
+(if you found it) the swipe-to-delete on the same-day agenda row. Added
+a `Delete Event` button to the Add/Edit Event screen itself.
 
-**What changed:** tapping a day in `MonthCalendarPicker` now selects it
-*and* dismisses the sheet in one step, matching the standard "jump to
-date" pattern (Apple's own date-jump pickers work this way — no
-double-tap gesture needed, which isn't really an iOS convention for this
-kind of control anyway). Removed the "Done" toolbar item from
-`CalendarStripView`'s sheet; "Cancel" still backs out without changing
-anything. Implemented via `.onChange(of: pickerDate)` on the sheet
-content calling `jump(to:)` — fires only on an actual day tap inside the
-grid (not on the `pickerDate = selectedDate` seed-assignment before the
-sheet opens, since that happens before this modifier exists, and not on
-month/year browsing via the chevrons, since those only change
-`MonthCalendarPicker`'s internal `displayedMonth`).
+**What changed:** `AddEditEventView` now shows a destructive-styled
+"Delete Event" button near the bottom of the form (below "More details",
+above "Save") — but *only* when editing an existing event
+(`viewModel.isEditing`), not when creating a new one, since there's
+nothing to delete yet in that case. Tapping it shows a
+`.confirmationDialog` ("Delete this event?") before anything happens,
+since deletion has no undo. Confirming calls the same `EventStore.delete`
+already used by `EventDetailView` and dismisses the sheet.
 
-**Verified via UI automation:** opened the month picker, tapped day 25 —
-sheet closed immediately, strip re-centered on a 22–28 window with 25 in
-the middle, "Today" button correctly appeared (no longer on today).
-Separately confirmed Cancel still closes the sheet without changing the
-selected day.
+**Verified via UI automation:** confirmed no Delete button appears on the
+Add-Event form (new event, nothing to delete). Created a test event,
+opened it for editing via the pencil icon, confirmed "Delete Event"
+renders correctly styled near the bottom. Tapped it, confirmed the
+"Delete this event?" dialog appears, tapped Delete, confirmed the sheet
+dismissed and the event is gone from the agenda (day reverted to the
+empty-day "Nothing today!" state).
 
 **Next steps for whoever picks this up:**
-1. `git status` will show `CalendarStripView.swift` modified — review the
+1. `git status` will show `AddEditEventView.swift` modified — review the
    diff, then commit and push.
 
 ## Session handoff — 2026-07-21 (still later evening), read this first

@@ -14,6 +14,7 @@ struct AddEditEventView: View {
     @State private var viewModel: AddEditEventViewModel
     @State private var conflictPartner: Event?
     @State private var savedEvent: Event?
+    @State private var showsDeleteConfirmation = false
 
     init(allEvents: [Event], editing event: Event? = nil, defaultDate: Date = .now) {
         self.allEvents = allEvents
@@ -72,6 +73,18 @@ struct AddEditEventView: View {
                             .padding(.top, 8)
                         }
                         .tint(Color("TextPrimary"))
+
+                        if viewModel.isEditing {
+                            Button(role: .destructive) {
+                                showsDeleteConfirmation = true
+                            } label: {
+                                Text("Delete Event")
+                                    .font(.body.weight(.semibold))
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(Color("ConflictColor"))
+                        }
                     }
                     .padding(20)
                     .padding(.bottom, 90)
@@ -101,7 +114,20 @@ struct AddEditEventView: View {
                     ConflictResolutionView(eventA: savedEvent, eventB: partner, onResolved: { dismiss() })
                 }
             }
+            .confirmationDialog(
+                "Delete this event?",
+                isPresented: $showsDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive, action: deleteEvent)
+            }
         }
+    }
+
+    private func deleteEvent() {
+        guard let editingEvent else { return }
+        EventStore.delete(editingEvent, in: modelContext)
+        dismiss()
     }
 
     private func save() {
