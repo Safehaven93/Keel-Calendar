@@ -4,31 +4,10 @@ Mapped to the MIS 676 course schedule so the code stays in step with the design 
 
 ## Session handoff — 2026-07-26, read this first
 
-**Status: visually verified, builds clean, not committed yet.** There
-was no way to delete an event short of editing it down to nothing, or
-(if you found it) the swipe-to-delete on the same-day agenda row. Added
-a `Delete Event` button to the Add/Edit Event screen itself.
-
-**What changed:** `AddEditEventView` now shows a destructive-styled
-"Delete Event" button near the bottom of the form (below "More details",
-above "Save") — but *only* when editing an existing event
-(`viewModel.isEditing`), not when creating a new one, since there's
-nothing to delete yet in that case. Tapping it shows a
-`.confirmationDialog` ("Delete this event?") before anything happens,
-since deletion has no undo. Confirming calls the same `EventStore.delete`
-already used by `EventDetailView` and dismisses the sheet.
-
-**Verified via UI automation:** confirmed no Delete button appears on the
-Add-Event form (new event, nothing to delete). Created a test event,
-opened it for editing via the pencil icon, confirmed "Delete Event"
-renders correctly styled near the bottom. Tapped it, confirmed the
-"Delete this event?" dialog appears, tapped Delete, confirmed the sheet
-dismissed and the event is gone from the agenda (day reverted to the
-empty-day "Nothing today!" state).
-
-**Next steps for whoever picks this up:**
-1. `git status` will show `AddEditEventView.swift` modified — review the
-   diff, then commit and push.
+**Status: clean.** `Delete Event` button (Add/Edit Event screen) from
+earlier today is committed and pushed. Nothing pending in `git status`.
+See the "Event categories + time-spent tracking" entry below — that's
+the next thing on deck, likely picked up later tonight.
 
 ## Session handoff — 2026-07-21 (still later evening), read this first
 
@@ -172,6 +151,68 @@ have to be redone. None of these block MVP — pick up only if time allows.
   detection + prioritization" extended from one person to two, which is
   Keel's hero differentiator per `CLAUDE.md`. Worth prototyping only if
   the core single-user conflict engine is rock solid first.
+- [ ] **Event categories + time-spent tracking.** Likely picked up
+  tonight. **Research-grounded, not scope creep** — unlike the other
+  ideas in this list, this one came directly out of a user interview: an
+  end user wants a visual of where his time is actually going, to catch
+  himself accidentally overloading one category without realizing it —
+  which directly feeds Keel's core loop, since noticing "I'm spending
+  way too much on X" is exactly the signal that should make him reprioritize
+  and move things in other categories. Worth reflecting this in
+  `SKILL.md` / the persona notes once built, since it's a real synthesis
+  insight, not a nice-to-have.
+
+  Three sub-pieces, increasing difficulty:
+  1. **Category field.** Add an optional `Category` to `Event`, same
+     shape as the existing `Flexibility` enum. Decision needed before
+     starting: fixed presets (Family/Exercise/Recreational — small,
+     closed list, easy) vs. user-defined custom categories (open-ended,
+     but needs its own `Category` model + a create/manage-categories
+     flow — meaningfully bigger). Default to presets for a first pass
+     unless there's a specific reason to need custom ones. Picker in
+     `AddEditEventView`'s "More details" section, mirroring the
+     flexibility cards.
+  2. **Filter the calendar by category.** A filter control (menu or
+     segmented picker, probably near the "Agenda" header) that narrows
+     the day list to one category at a time. Need to decide whether the
+     month-picker busyness shading reflects the active filter or always
+     shows everything unfiltered — pick one deliberately, don't leave it
+     ambiguous.
+  3. **Monthly time-spent-per-category.** The one flagged as uncertain —
+     but the math is the easy part: sum `endDate - startDate` per
+     category for events in the selected month, all local, no backend
+     needed. The real question is where/how it surfaces in the UI.
+     Brainstormed options, roughly cheapest-to-priciest to build:
+     - **Text breakdown list** — "Family: 6h 30m", "Exercise: 3h",
+       sorted descending, on a new small screen. Cheapest to build,
+       least visual — probably the right starting point to validate the
+       feature before investing in a chart.
+     - **Horizontal bar per category** — proportion of tracked time as a
+       simple `Rectangle`-width bar, reusing the same
+       `Color("AccentColor").opacity(...)` visual language already
+       established by the month-picker busyness shading, so it reads as
+       the same design system rather than a bolted-on chart.
+     - **Stat tiles/cards** — one card per category with its total,
+       loosely similar to the flexibility cards' visual weight.
+     - **Month-over-month comparison** — this month vs. last month per
+       category, surfacing the delta ("Exercise dropped from 8h → 2h").
+       Directly serves the interviewed user's actual goal (noticing an
+       unintentional skew) better than a single-month snapshot alone,
+       so it's worth treating as the real target, not text-list as a
+       placeholder for something fancier.
+     - **Passive monthly summary** — instead of (or in addition to) a
+       dedicated screen the user has to remember to open, surface a
+       short summary automatically at the start of a new month (e.g. a
+       banner/insight card on the Agenda screen: "Last month: 60% of
+       your tracked time went to Work"). Highest payoff for the actual
+       insight (catches the user passively, doesn't require them to dig
+       for it) but the biggest lift — needs a "has this been shown yet
+       this month" state and a good dismiss/re-surface rule.
+     - Ruled out for now: a full donut/pie chart or per-day stacked
+       timeline — visually richer but meaningfully more SwiftUI work for
+       an MVP prototype, and the text-list/bar options above answer the
+       user's actual stated need ("am I overloading one category")
+       without it.
 
 ## Explicitly not doing for MVP (revisit only if time allows)
 - [ ] Multi-user accounts / shared household view
