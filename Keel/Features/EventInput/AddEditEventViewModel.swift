@@ -25,8 +25,13 @@ final class AddEditEventViewModel {
 
     /// - Parameter defaultDate: the day to prefill when adding a new event
     ///   (e.g. the day currently selected in Agenda's calendar strip).
-    ///   Ignored when editing an existing event, which keeps its own date.
-    init(editing event: Event? = nil, defaultDate: Date = .now) {
+    ///   Ignored when editing an existing event, which keeps its own date,
+    ///   and ignored when `prefill` is set, which keeps the scanned date.
+    /// - Parameter prefill: initial field values from a scanned QR code.
+    ///   Still an "add" (`editingEvent` stays nil, `isEditing` stays
+    ///   false) — nothing from a scan is persisted until the user reviews
+    ///   and saves it here, same as any other new event.
+    init(editing event: Event? = nil, defaultDate: Date = .now, prefill: ScannedEventDraft? = nil) {
         self.editingEvent = event
         let calendar = Calendar.current
         if let event {
@@ -38,6 +43,15 @@ final class AddEditEventViewModel {
             category = event.category
             location = event.location ?? ""
             notes = event.notes ?? ""
+        } else if let prefill {
+            title = prefill.title
+            date = calendar.startOfDay(for: prefill.startDate)
+            startTime = prefill.startDate
+            endTime = prefill.endDate
+            flexibility = prefill.flexibility
+            category = prefill.category
+            location = prefill.location ?? ""
+            notes = prefill.notes ?? ""
         } else {
             let now = Date()
             date = calendar.startOfDay(for: defaultDate)

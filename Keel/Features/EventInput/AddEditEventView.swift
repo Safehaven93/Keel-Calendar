@@ -16,10 +16,15 @@ struct AddEditEventView: View {
     @State private var savedEvent: Event?
     @State private var showsDeleteConfirmation = false
 
-    init(allEvents: [Event], editing event: Event? = nil, defaultDate: Date = .now) {
+    init(
+        allEvents: [Event],
+        editing event: Event? = nil,
+        defaultDate: Date = .now,
+        prefill: ScannedEventDraft? = nil
+    ) {
         self.allEvents = allEvents
         self.editingEvent = event
-        _viewModel = State(initialValue: AddEditEventViewModel(editing: event, defaultDate: defaultDate))
+        _viewModel = State(initialValue: AddEditEventViewModel(editing: event, defaultDate: defaultDate, prefill: prefill))
     }
 
     var body: some View {

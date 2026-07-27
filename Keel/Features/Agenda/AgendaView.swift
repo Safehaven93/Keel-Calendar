@@ -15,6 +15,7 @@ struct AgendaView: View {
     @State private var selectedDate = Calendar.current.startOfDay(for: .now)
     @State private var categoryFilter: EventCategory?
     @State private var isShowingInsights = false
+    @State private var isShowingScanner = false
 
     private var viewModel: AgendaViewModel { AgendaViewModel(modelContext: modelContext) }
 
@@ -35,6 +36,15 @@ struct AgendaView: View {
                             isShowingInsights = true
                         } label: {
                             Image(systemName: "chart.bar.fill")
+                                .foregroundStyle(Color("TextSecondary"))
+                                .padding(8)
+                                .background(Color("Surface"))
+                                .clipShape(Circle())
+                        }
+                        Button {
+                            isShowingScanner = true
+                        } label: {
+                            Image(systemName: "qrcode.viewfinder")
                                 .foregroundStyle(Color("TextSecondary"))
                                 .padding(8)
                                 .background(Color("Surface"))
@@ -79,6 +89,9 @@ struct AgendaView: View {
             }
             .sheet(isPresented: $isShowingInsights) {
                 CategoryInsightsView(events: events, initialMonth: selectedDate)
+            }
+            .sheet(isPresented: $isShowingScanner) {
+                ScanEventQRView(allEvents: events, defaultDate: selectedDate)
             }
         }
     }

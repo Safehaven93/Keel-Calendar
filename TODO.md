@@ -2,59 +2,96 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-27 (even later), read this first
+## Session handoff — 2026-07-27 (still even later), read this first
 
-**Status: visually verified, builds clean, not committed yet.**
-Month-over-month comparison for Category Insights — the "natural next
-step" flagged in the previous handoff. Manually confirmed by the user
-that the wheel-scroll gap noted in that previous entry works correctly
-(scrolled + Done applied the new month), so that's no longer an open
-question.
+**Status: mostly verified, builds clean, not committed yet.** Built the
+QR code event sharing feature from the brainstormed ideas list — first
+build, not an iteration on existing work.
 
 **What changed:**
-- `CategoryBreakdownRow` gained `durationDelta: TimeInterval?` — nil
-  means the category had zero events last month (a "new" category this
-  month, not a meaningful comparison); otherwise this month's total
-  minus last month's, so negative means less time than last month.
-- `CategoryInsightsViewModel.rows(from:)` now tallies both the displayed
-  month and the prior month (`tally(_:for:)`, a small private helper —
-  same grouping logic, just parameterized by month instead of always
-  using `displayedMonth`), then computes each row's delta by matching
-  categories between the two tallies.
-- Deliberately scoped to **duration only**, not a second count-delta —
-  the interview insight was specifically about time ("am I overloading
-  one category"), and showing both count-delta and duration-delta per
-  card risked cluttering a card that's meant to be scannable at a
-  glance.
-- `CategoryInsightsView.breakdownCard` gained a `deltaLabel` subtitle:
-  "+1h 30m vs last month" / "−45m vs last month" (colored/arrowed by
-  direction — increase in `AccentColor` with an up-right arrow, decrease
-  in `TextSecondary` with a down-right arrow, deliberately not using
-  `ConflictColor` since a category simply taking more time isn't a
-  scheduling conflict and reusing that color would blur the meaning),
-  "No change vs last month" when the delta is exactly zero, or "New this
-  month" when there's no prior-month data for that category at all.
+- `EventQRCoding.swift` (new, in `Models/`): encodes an `Event` as a
+  standard iCalendar `VEVENT` text block (`SUMMARY`/`DTSTART`/`DTEND`/
+  `LOCATION`/`DESCRIPTION`, plus `X-KEEL-FLEXIBILITY`/`X-KEEL-CATEGORY`
+  extension fields since those aren't standard iCalendar concepts), and
+  decodes it back into a `ScannedEventDraft` — a plain struct, not an
+  `Event`, so nothing from a scan touches SwiftData until the user
+  reviews and saves it through the normal form.
+- `EventQRCodeView.swift` (new, in `Features/QRSharing/`): renders the
+  encoded text as a QR image via `CIFilter.qrCodeGenerator()`, with a
+  `ShareLink` for sending the image (written to a temp PNG file first,
+  since `ShareLink` needs a `Transferable` item and a file `URL` is more
+  reliable than trying to make `UIImage` conform). Reachable via a new
+  "Share as QR Code" button on `EventDetailView`.
+- `QRScannerView.swift` (new): a `UIViewControllerRepresentable` wrapping
+  `AVFoundation` (`AVCaptureSession` + `AVCaptureMetadataOutput`) for
+  live QR detection — SwiftUI has no native camera/scanning view.
+- `ScanEventQRView.swift` (new): hosts the camera view plus a manual
+  "paste a code" fallback text field. On a successful decode (from
+  either path), opens `AddEditEventView` pre-filled via a new `prefill:
+  ScannedEventDraft?` parameter threaded through
+  `AddEditEventViewModel.init` — still an *add*, not an edit
+  (`editingEvent` stays nil), so it goes through the same save/conflict
+  path as any manually-created event. Reachable via a new
+  "qrcode.viewfinder" button in `AgendaView`'s header.
+- Added `INFOPLIST_KEY_NSCameraUsageDescription` to both build
+  configurations (`Info.plist` is auto-generated from build settings in
+  this project, no physical plist file to edit).
+- Four new files added to `Keel.xcodeproj/project.pbxproj` by hand
+  again (same reminder as prior handoffs — this project doesn't
+  auto-include new files).
 
-**Verified via UI automation:** built a June-dated Exercise event
-alongside the existing July Exercise event (1h each) — confirmed July's
-Exercise card read "No change vs last month". Added a second July
-Exercise event (July now 2h vs June's 1h) — confirmed the card updated
-to "2h / 2 events / +1h vs last month" with the up-arrow styling.
-Confirmed categories with no prior-month data (Uncategorized, Family)
-correctly show "New this month" instead of a nonsensical delta from
-zero.
+**Why the paste fallback isn't just a nice-to-have:** the iOS Simulator
+has no real camera to point at a printed QR code, so it's the only path
+that let this get verified at all via automation — same shape of
+limitation as the wheel-picker gap from an earlier handoff, but this
+time worked around instead of left as a manual-check note.
+
+**Verified via UI automation, thoroughly:**
+- Generated a QR code for a real event ("Extra workout") — confirmed a
+  valid-looking QR image renders (correct finder-pattern structure) and
+  the Share button/sheet appear.
+- Confirmed the scan screen loads without crashing even with no camera
+  present (`AVCaptureDevice.default(for: .video)` returns nil in
+  Simulator, so `configureSession()` just no-ops — black preview area,
+  no crash).
+- Exercised the full decode path: typing text with embedded newlines
+  isn't supported by the automation tool's typing (`ACTION_FAILED` /
+  "unsupported by AXe typing"), and a Return keypress didn't insert a
+  newline into the field either — worked around by setting the
+  simulator's pasteboard via `xcrun simctl pbcopy <udid>` from the shell
+  and using the field's native long-press → Paste menu instead. Pasted a
+  full `VEVENT` block (title, start/end time spanning 2–4pm, location,
+  `veryFlexible`, `recreational`), tapped Import — confirmed every field
+  landed correctly in the pre-filled Add Event form: title, date, start
+  time, end time, flexibility card, category chip, and location all
+  matched the source data exactly.
+- Saved the scanned/pre-filled event — it correctly triggered a real
+  conflict against an existing event at an overlapping time, proving the
+  QR-imported event flows through the same conflict engine as any
+  manually-entered one rather than bypassing it. Resolved via "Keep
+  both," confirmed it landed back on Agenda normally.
+- **Not verified**: an actual live-camera scan of a physically-rendered
+  QR code — impossible to automate without real hardware. The camera
+  path (`AVCaptureMetadataOutput` → `metadataOutput(_:didOutput:from:)`
+  → `onCode`) is standard, well-established AVFoundation usage; whoever
+  picks this up should do one real-device check (two phones, or one
+  phone scanning the QR shown on a Mac screen) to confirm the live path
+  end to end — the decode/prefill/save logic downstream of "a string
+  arrived" is already fully verified above.
 
 **Next steps for whoever picks this up:**
-1. `git status` will show `CategoryInsightsViewModel.swift` and
-   `CategoryInsightsView.swift` modified — review the diff, then commit
-   and push.
-2. Not yet handled: a category with events *last* month but zero *this*
-   month currently just doesn't appear as a row at all (rows are still
-   built from the current month's events only), so a full drop-to-zero
-   isn't visible the way a partial decrease is. Worth deciding
-   deliberately if/when picked up — union-ing categories from both
-   months would show it, but changes what "No events this month." (the
-   empty-state message) means when only prior-month data exists.
+1. `git status` will show new files under `Keel/Models/EventQRCoding.swift`
+   and `Keel/Features/QRSharing/`, plus `EventDetailView.swift`,
+   `AddEditEventView.swift`, `AddEditEventViewModel.swift`,
+   `AgendaView.swift`, and `Keel.xcodeproj/project.pbxproj` modified —
+   review the diff, then commit and push.
+2. Do the real-device camera check described above when convenient.
+3. Not handled: what happens if someone scans a *non*-Keel QR code (e.g.
+   a random URL). Currently `EventQRCoding.decode` returns nil for
+   anything without `BEGIN:VEVENT`/`END:VEVENT`, which correctly shows
+   the "Not a Keel Event Code" alert rather than crashing — this was
+   verified indirectly (decode's guard clause is straightforward) but
+   not tested with an actual foreign QR code scan.
 
 ## Session handoff — 2026-07-21 (still later evening), read this first
 
@@ -163,16 +200,18 @@ have to be redone. None of these block MVP — pick up only if time allows.
   picker in `AddEditEventView` next to the existing Flexibility picker,
   and a scheduler that creates/cancels a `UNNotificationRequest` (keyed to
   the event's `id`) on save/edit/delete.
-- [ ] **QR code event sharing.** Generate a QR code for an event (via
-  `CIFilter`'s built-in `CIQRCodeGenerator`, no third-party dependency)
-  encoding the event as a standard iCalendar `VEVENT` text block — reusing
-  an existing format rather than inventing one. Another Keel user scans it
+- [x] **QR code event sharing.** Built 2026-07-27 — see the session
+  handoff above for the full implementation and verification details.
+  Generates a QR code for an event (`CIFilter`'s built-in
+  `CIQRCodeGenerator`, no third-party dependency) encoding the event as
+  a standard iCalendar `VEVENT` text block. Another Keel user scans it
   with an in-app camera scanner (AVFoundation) to import the event
-  locally. No server needed since the QR carries the full event data
-  itself. Constraint: only works between two people who both have Keel
-  installed (no web fallback for non-users) — but that's consistent with
-  Keel's existing "manually ingest other people's commitments" design;
-  this would just make that manual step faster.
+  locally, reviewed through the normal Add Event form before saving. No
+  server needed since the QR carries the full event data itself.
+  Live-camera scanning itself couldn't be automate-tested (no simulator
+  camera) — flagged for a real-device check — but the decode → prefill →
+  save path, including conflict detection against existing events, is
+  fully verified via the paste fallback.
 - [ ] **Shared-event time suggestions.** Propose an event with someone
   else (e.g. "Saturday" with your girlfriend) and have Keel suggest a
   time that avoids both people's fixed commitments — e.g. you're booked

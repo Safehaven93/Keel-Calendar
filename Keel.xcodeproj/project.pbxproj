@@ -27,6 +27,10 @@
 		6F7A8B9C0D1E2F1A2B3C4D5E /* MonthYearPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8B9C0D1E2F1A2B3C4D5E6F /* MonthYearPickerView.swift */; };
 		8A6B95E8B8CC596B8B0A1662 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2C0FCA3AB4D999CB069A23 /* Event.swift */; };
 		03DBBFAB350EF5BE1EC9AAF3 /* EventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466E11380599C269BEF13679 /* EventStore.swift */; };
+		CD34EF56AB12CD34EF56AB12 /* EventQRCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB12CD34EF56AB12CD34EF56 /* EventQRCoding.swift */; };
+		5678EFAB1234CDEF5678ABCD /* EventQRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1234ABCD5678EFAB1234CDEF /* EventQRCodeView.swift */; };
+		EF567890ABCD1234EF567890 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD1234EF567890ABCD1234 /* QRScannerView.swift */; };
+		1234567890ABCDEF12345678 /* ScanEventQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7890ABCDEF1234567890ABCD /* ScanEventQRView.swift */; };
 		7D1A4C9E929C415399EA8A56 /* AddEditEventViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02892AFF85D93509C62D987B /* AddEditEventViewModelTests.swift */; };
 		CA5C962CE80F2F6B9D65B1E3 /* AgendaViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49F477158F1F2CD8EA00A77 /* AgendaViewModelTests.swift */; };
 		1AE9E5CA0C8FFC4454140538 /* ConflictEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */; };
@@ -68,6 +72,10 @@
 		7A8B9C0D1E2F1A2B3C4D5E6F /* MonthYearPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthYearPickerView.swift; sourceTree = "<group>"; };
 		3A2C0FCA3AB4D999CB069A23 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		466E11380599C269BEF13679 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStore.swift; sourceTree = "<group>"; };
+		AB12CD34EF56AB12CD34EF56 /* EventQRCoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventQRCoding.swift; sourceTree = "<group>"; };
+		1234ABCD5678EFAB1234CDEF /* EventQRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventQRCodeView.swift; sourceTree = "<group>"; };
+		ABCD1234EF567890ABCD1234 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		7890ABCDEF1234567890ABCD /* ScanEventQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanEventQRView.swift; sourceTree = "<group>"; };
 		02892AFF85D93509C62D987B /* AddEditEventViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditEventViewModelTests.swift; sourceTree = "<group>"; };
 		D49F477158F1F2CD8EA00A77 /* AgendaViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaViewModelTests.swift; sourceTree = "<group>"; };
 		DC5740E91A091E5DBFE08251 /* ConflictEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictEngineTests.swift; sourceTree = "<group>"; };
@@ -113,6 +121,7 @@
 				4E30A2DD38BA64DA4ED34435 /* ConflictResolution */,
 				14FFA1C08665A023A218FB22 /* EventDetail */,
 				EC088A29474F639E23CB74EA /* EventInput */,
+				EF56AB12CD34EF56AB12CD34 /* QRSharing */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -165,11 +174,22 @@
 			path = CategoryInsights;
 			sourceTree = "<group>";
 		};
+		EF56AB12CD34EF56AB12CD34 /* QRSharing */ = {
+			isa = PBXGroup;
+			children = (
+				1234ABCD5678EFAB1234CDEF /* EventQRCodeView.swift */,
+				ABCD1234EF567890ABCD1234 /* QRScannerView.swift */,
+				7890ABCDEF1234567890ABCD /* ScanEventQRView.swift */,
+			);
+			path = QRSharing;
+			sourceTree = "<group>";
+		};
 		E744151133C1B43D16BF2841 /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				3A2C0FCA3AB4D999CB069A23 /* Event.swift */,
 				466E11380599C269BEF13679 /* EventStore.swift */,
+				AB12CD34EF56AB12CD34EF56 /* EventQRCoding.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -327,6 +347,10 @@
 				AD121182A7ECB817814AB8F8 /* AddEditEventViewModel.swift in Sources */,
 				8A6B95E8B8CC596B8B0A1662 /* Event.swift in Sources */,
 				03DBBFAB350EF5BE1EC9AAF3 /* EventStore.swift in Sources */,
+				CD34EF56AB12CD34EF56AB12 /* EventQRCoding.swift in Sources */,
+				5678EFAB1234CDEF5678ABCD /* EventQRCodeView.swift in Sources */,
+				EF567890ABCD1234EF567890 /* QRScannerView.swift in Sources */,
+				1234567890ABCDEF12345678 /* ScanEventQRView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,6 +500,7 @@
 			CODE_SIGN_STYLE = Automatic;
 			CURRENT_PROJECT_VERSION = 1;
 			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_KEY_NSCameraUsageDescription = "Keel uses the camera to scan event QR codes shared by other Keel users.";
 			INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 			INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 			INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -500,6 +525,7 @@
 			CODE_SIGN_STYLE = Automatic;
 			CURRENT_PROJECT_VERSION = 1;
 			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_KEY_NSCameraUsageDescription = "Keel uses the camera to scan event QR codes shared by other Keel users.";
 			INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 			INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 			INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;

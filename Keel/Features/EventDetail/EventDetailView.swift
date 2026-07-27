@@ -10,6 +10,7 @@ struct EventDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \Event.startDate) private var allEvents: [Event]
     @State private var isEditing = false
+    @State private var isShowingQRCode = false
 
     var body: some View {
         ZStack {
@@ -22,6 +23,17 @@ struct EventDetailView: View {
                     if event.location != nil || event.notes != nil || event.rescheduleNote != nil {
                         detailsCard
                     }
+
+                    Button {
+                        isShowingQRCode = true
+                    } label: {
+                        Label("Share as QR Code", systemImage: "qrcode")
+                            .font(.body.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color("AccentColor"))
 
                     HStack(spacing: 12) {
                         Button("Edit") { isEditing = true }
@@ -45,6 +57,9 @@ struct EventDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $isEditing) {
             AddEditEventView(allEvents: allEvents, editing: event)
+        }
+        .sheet(isPresented: $isShowingQRCode) {
+            EventQRCodeView(event: event)
         }
     }
 
