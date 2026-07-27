@@ -9,6 +9,7 @@ struct CategoryInsightsView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CategoryInsightsViewModel
+    @State private var isShowingMonthYearPicker = false
 
     init(events: [Event], initialMonth: Date) {
         self.events = events
@@ -49,6 +50,12 @@ struct CategoryInsightsView: View {
                     Button("Done") { dismiss() }
                 }
             }
+            .sheet(isPresented: $isShowingMonthYearPicker) {
+                MonthYearPickerView(selectedMonth: Binding(
+                    get: { viewModel.displayedMonth },
+                    set: { viewModel.displayedMonth = $0 }
+                ))
+            }
         }
     }
 
@@ -61,8 +68,16 @@ struct CategoryInsightsView: View {
                     .font(.body.weight(.semibold))
             }
             Spacer()
-            Text(viewModel.displayedMonth, format: .dateTime.month(.wide).year())
-                .font(.headline)
+            Button {
+                isShowingMonthYearPicker = true
+            } label: {
+                HStack(spacing: 4) {
+                    Text(viewModel.displayedMonth, format: .dateTime.month(.wide).year())
+                        .font(.headline)
+                    Image(systemName: "chevron.down")
+                        .font(.caption2.weight(.semibold))
+                }
+            }
             Spacer()
             Button {
                 viewModel.changeMonth(by: 1)

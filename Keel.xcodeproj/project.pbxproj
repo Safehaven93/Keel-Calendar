@@ -24,6 +24,7 @@
 		AD121182A7ECB817814AB8F8 /* AddEditEventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 287895D2C7CC24A9FD2C2396 /* AddEditEventViewModel.swift */; };
 		4D5E6F7A8B9C0D1E2F1A2B3C /* CategoryInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C4D5E6F7A8B9C0D1E2F1A /* CategoryInsightsView.swift */; };
 		5E6F7A8B9C0D1E2F1A2B3C4D /* CategoryInsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4D5E6F7A8B9C0D1E2F1A2B /* CategoryInsightsViewModel.swift */; };
+		6F7A8B9C0D1E2F1A2B3C4D5E /* MonthYearPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8B9C0D1E2F1A2B3C4D5E6F /* MonthYearPickerView.swift */; };
 		8A6B95E8B8CC596B8B0A1662 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2C0FCA3AB4D999CB069A23 /* Event.swift */; };
 		03DBBFAB350EF5BE1EC9AAF3 /* EventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466E11380599C269BEF13679 /* EventStore.swift */; };
 		7D1A4C9E929C415399EA8A56 /* AddEditEventViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02892AFF85D93509C62D987B /* AddEditEventViewModelTests.swift */; };
@@ -64,6 +65,7 @@
 		287895D2C7CC24A9FD2C2396 /* AddEditEventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditEventViewModel.swift; sourceTree = "<group>"; };
 		2B3C4D5E6F7A8B9C0D1E2F1A /* CategoryInsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryInsightsView.swift; sourceTree = "<group>"; };
 		3C4D5E6F7A8B9C0D1E2F1A2B /* CategoryInsightsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryInsightsViewModel.swift; sourceTree = "<group>"; };
+		7A8B9C0D1E2F1A2B3C4D5E6F /* MonthYearPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthYearPickerView.swift; sourceTree = "<group>"; };
 		3A2C0FCA3AB4D999CB069A23 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		466E11380599C269BEF13679 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStore.swift; sourceTree = "<group>"; };
 		02892AFF85D93509C62D987B /* AddEditEventViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditEventViewModelTests.swift; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 			children = (
 				2B3C4D5E6F7A8B9C0D1E2F1A /* CategoryInsightsView.swift */,
 				3C4D5E6F7A8B9C0D1E2F1A2B /* CategoryInsightsViewModel.swift */,
+				7A8B9C0D1E2F1A2B3C4D5E6F /* MonthYearPickerView.swift */,
 			);
 			path = CategoryInsights;
 			sourceTree = "<group>";
@@ -311,6 +314,7 @@
 				942C5F937995C5C1C8796871 /* RescheduleSuggester.swift in Sources */,
 				4D5E6F7A8B9C0D1E2F1A2B3C /* CategoryInsightsView.swift in Sources */,
 				5E6F7A8B9C0D1E2F1A2B3C4D /* CategoryInsightsViewModel.swift in Sources */,
+				6F7A8B9C0D1E2F1A2B3C4D5E /* MonthYearPickerView.swift in Sources */,
 				37E2D17FE1A57F9A9E501883 /* AgendaView.swift in Sources */,
 				792CFF56F31E961C78336122 /* AgendaViewModel.swift in Sources */,
 				C645083F53FB2A067F599C9D /* CalendarStripView.swift in Sources */,

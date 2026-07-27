@@ -2,61 +2,60 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-27, read this first
+## Session handoff — 2026-07-27 (later), read this first
 
-**Status: visually verified, builds clean, not committed yet.**
-Sub-piece 3 (final piece) of "Event categories + time-spent tracking":
-the monthly breakdown screen. Sub-pieces 1 (category field) and 2
-(calendar filter) are already committed/pushed — the whole feature is
-now built end to end.
+**Status: builds clean, mostly verified, not committed yet.** Follow-up
+to Category Insights (already committed/pushed): made the month label
+tappable so you can jump to any month directly, instead of only
+stepping one at a time via the chevrons.
 
 **What changed:**
-- New `Features/CategoryInsights/` folder: `CategoryInsightsViewModel.swift`
-  (groups a month's events by category via `Dictionary(grouping:by:)`,
-  tallying both event count and total duration per category — including
-  an "Uncategorized" row for `category == nil`, so every event is
-  accounted for, not just tagged ones) and `CategoryInsightsView.swift`
-  (month header with prev/next chevrons, same pattern as
-  `MonthCalendarPicker`'s header; one card per category, sorted by total
-  duration descending).
-- Went with the **text/stat-list** presentation from the brainstormed
-  options in this file — cheapest to build, and the user confirmed
-  wanting both count *and* time per category rather than picking one,
-  which a plain list handles cleanly without needing a chart yet.
-  Bar/tile/chart options remain open for later if the list alone isn't
-  enough once there's real data in it.
-- Reachable via a new chart-icon button in `AgendaView`'s header row
-  (next to the category filter), opening `CategoryInsightsView` as a
-  sheet seeded with the currently-selected day's month.
-- Duration formatting via `DateComponentsFormatter` (`.abbreviated`,
-  hour/minute units) — e.g. "6h 30m", "1h".
-- New files had to be added to `Keel.xcodeproj/project.pbxproj` by hand
-  (`PBXBuildFile`/`PBXFileReference`/group entries + Sources build phase)
-  since this project doesn't use Xcode 16's file-system-synchronized
-  groups — new files in a folder aren't auto-included. Worth remembering
-  for any future new-file additions: a plain `Write` isn't enough, the
-  project file needs the matching entries too, or the build fails with
-  "cannot find X in scope" despite the file existing on disk.
+- New `MonthYearPickerView.swift` (in `Features/CategoryInsights/`) — a
+  small sheet with two `.wheel`-style `Picker`s (month name, year ±5 from
+  the current year), Cancel/Done toolbar buttons. Deliberately separate
+  from `MonthCalendarPicker` (which picks a specific *day* via a tap grid
+  and auto-dismisses on tap) — this only needs month granularity, and a
+  wheel is a continuous scroll gesture without a natural "this is the
+  selection" tap moment, so it keeps an explicit Done rather than
+  auto-dismissing.
+- `CategoryInsightsView`'s month label is now a `Button` (was plain
+  `Text`) that presents `MonthYearPickerView` as a sheet, bound to
+  `viewModel.displayedMonth` via a manual `Binding(get:set:)` since
+  `displayedMonth` lives on an `@Observable` view model, not a
+  `@Binding` property directly.
+- Added to `Keel.xcodeproj/project.pbxproj` by hand again (see the
+  reminder in the previous handoff entry below — still applies, this
+  project doesn't auto-include new files).
 
-**Verified via UI automation:** with "Baseball practice" (Family, 1h) and
-"Soccer practice" (Exercise, 1h) plus some older leftover uncategorized
-test events, opened Insights from the new header button — confirmed
-"July 2026" with three correctly-sorted cards: Uncategorized (17h / 6
-events), Exercise (1h / 1 event), Family (1h / 1 event). Tapped the
-back-chevron to June 2026 — confirmed "No events this month." renders
-correctly for an empty month. Returned to July, confirmed Done dismisses
-back to Agenda.
+**Verified via UI automation, with one gap:** confirmed the month label
+is tappable and opens "Jump to Month" pre-selected to the currently
+displayed month/year (checked at July 2026 initially, then again after
+navigating to September 2026 via the chevrons — picker correctly showed
+"September" / "2026" both times). **Could not verify the wheel-scroll →
+Done → month-changes path via automation**: the UI automation tool's
+accessibility-snapshot command (`axe`/`FBSimulatorControl`) crashes with
+an uncaught `NSInvalidArgumentException` (`-[__NSCFString translation]:
+unrecognized selector`) whenever it tries to walk the accessibility tree
+while a `.wheel`-style `Picker` is on screen — reproduced 3 times
+consistently, app itself never crashed (confirmed via screenshots taken
+instead of snapshots). This is a known-shape issue with `UIPickerView`
+accessibility introspection in this tooling, not an app bug. The Done
+handler is a standard `DateComponents` → `Calendar.date(from:)` call, low
+risk, but **whoever picks this up should do one quick manual check in
+the simulator/device**: open Insights, tap the month label, scroll both
+wheels to a different month/year, tap Done, confirm the header and
+breakdown update to match.
 
 **Next steps for whoever picks this up:**
-1. `git status` will show new files under `Keel/Features/CategoryInsights/`,
-   `AgendaView.swift`, and `Keel.xcodeproj/project.pbxproj` modified —
-   review the diff, then commit and push.
-2. The full "Event categories + time-spent tracking" feature (all three
-   sub-pieces) is now done. If picked back up, the natural next step per
-   the original brainstorm is month-over-month comparison (surfacing the
-   delta), which more directly serves the interviewed user's actual goal
-   of noticing an unintentional skew — the current single-month snapshot
-   is a solid foundation for that, not a dead end.
+1. `git status` will show `MonthYearPickerView.swift` (new),
+   `CategoryInsightsView.swift`, and `Keel.xcodeproj/project.pbxproj`
+   modified — review the diff.
+2. Do the manual wheel-scroll check described above before considering
+   this fully verified, then commit and push.
+3. The "Event categories + time-spent tracking" feature (all three
+   original sub-pieces, plus this month-jump refinement) is otherwise
+   done. Next natural step per the original brainstorm is month-over-month
+   comparison — see the entry further below for the full plan.
 
 ## Session handoff — 2026-07-21 (still later evening), read this first
 
