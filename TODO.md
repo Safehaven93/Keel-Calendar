@@ -2,6 +2,111 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
+## Session handoff — 2026-07-27 (latest), read this first
+
+**Status: visually verified end-to-end, builds clean, not committed yet.**
+Built the "shared-event availability" feature — the scoped-down version of
+the "shared-event time suggestions" brainstorm entry below (still present
+in the ideas list, now largely superseded by this). Lets a recipient see
+the event owner's availability for that day, not just the one event, and
+propose a different time back — reusing the QR/text sharing infrastructure
+end to end rather than adding a new channel.
+
+**What changed:**
+- `EventQRCoding.swift`: `ScannedEventDraft` gained `busyBlocks:
+  [DateInterval]` (defaults to `[]`). `encode(_:busyEvents:)` and
+  `shareText(for:busyEvents:)` gained an optional `busyEvents: [Event]`
+  parameter — when non-empty, each event's start/end time is encoded as
+  a repeated `X-KEEL-BUSY:START-END` line. Deliberately **times only** —
+  per explicit user direction, the recipient should see *when* the owner
+  is busy, never *what* they're doing, so no titles/locations/notes ever
+  go into these lines. `decode(_:)` parses `X-KEEL-BUSY` lines back into
+  `busyBlocks`.
+- `EventQRCodeView.swift`: gained an opt-in, **off-by-default** "Include
+  my availability for this day" toggle — only shown at all when the
+  owner has other events that day (nothing to share otherwise). When on,
+  both "Share as QR Code" and "Share as Text" (now consolidated into this
+  one sheet, replacing the two separate buttons that used to live
+  directly on `EventDetailView`) encode the day's other events as busy
+  blocks via the `busyEvents:` parameter.
+- `EventDetailView.swift`: the two separate share buttons collapsed into
+  one "Share Event" button opening `EventQRCodeView` (now passed
+  `allEvents:` so it can compute the day's busy blocks).
+- `AvailabilityCompareView.swift` (new, in `Features/QRSharing/`): shown
+  on the recipient's side, after a scan/paste decode, only when
+  `busyBlocks` is non-empty. Lists the owner's busy times and the
+  recipient's own events for that day side by side (list-based, not a
+  graphical timeline — simpler to build/verify and matches the rest of
+  the app's card style), computes open windows (≥30 min gaps, within a
+  7am–10pm display range) where neither has something, and lets the
+  recipient tap "Propose <window>" to carry an adjusted
+  `ScannedEventDraft` (same title/location/notes/flexibility/category,
+  new start/end clamped to the window) into the existing prefill
+  `AddEditEventView` — or "Use their original proposed time" to skip
+  straight to the original scanned time. Nothing is saved until that
+  form is submitted, same review-before-save pattern as plain QR import.
+- `ScanEventQRView.swift`: `handle(_:)` now branches on whether the
+  decoded draft has busy blocks — empty routes straight to the existing
+  prefill sheet (unchanged behavior for a plain shared event), non-empty
+  routes through the new `AvailabilityCompareView` first. Both paths
+  still cascade-dismiss back to Agenda the same way.
+- `Keel.xcodeproj/project.pbxproj`: added the four required entries for
+  `AvailabilityCompareView.swift` (this project has no file-system-
+  synchronized groups, so every new file needs manual `PBXBuildFile` +
+  `PBXFileReference` + group + Sources-phase entries). First attempt
+  picked UUIDs that collided with `EventQRCoding.swift`'s existing ones
+  (damaged-project build error) — fixed by generating genuinely random
+  24-hex-char IDs and confirming uniqueness via `grep -c` before
+  rebuilding.
+
+**Verified via UI automation, full round trip:**
+1. Set up test data: two same-day events, resolved a real conflict
+   between them via the existing conflict engine (validates this feature
+   composes with, not around, the conflict system).
+2. Opened "Extra workout"'s Share Event sheet — confirmed the
+   availability toggle is hidden when there's only one event that day,
+   then appears once a second event exists. Confirmed it defaults off.
+3. Toggled it on, shared as text. The QR image visibly grew denser (more
+   encoded lines) confirming the busy block made it into the payload —
+   same "share sheet contents aren't in the accessibility tree" tooling
+   limitation as prior sessions, so verified by screenshot rather than
+   reading the clipboard, but the downstream decode step (next) proves
+   the content was correct regardless.
+4. On the "recipient" side: seeded the simulator pasteboard via `xcrun
+   simctl pbcopy` with a hand-built VEVENT payload (mirroring exactly
+   what `encode` would produce) representing a third-party "Coffee
+   catch-up" event with two owner busy blocks (1:30–3:00 PM and
+   10:00–11:30 PM). Pasted and imported via the existing paste fallback.
+5. `AvailabilityCompareView` correctly showed both busy lists ("Their
+   busy times": 1:30–3:00 PM, 10:00 PM–11:30 PM; "Your busy times":
+   the two real events with their titles) and computed exactly the
+   expected two open windows (7:00 AM–1:30 PM and 3:00 PM–10:00 PM).
+6. Tapped "Propose 7:00 AM–1:30 PM" — landed in the prefill form with
+   title "Coffee catch-up", correct date, and start time 7:00 AM. Saved
+   it successfully with no conflict (the math checked out).
+7. Cleaned up all test events afterward so the simulator's data matches
+   what it had before this session.
+
+**Not verified / known gaps (consistent with prior QR/text handoffs):**
+byte-exact share-sheet clipboard content (see above), live-camera scan on
+a physical device, and a foreign (non-Keel) QR/text code that happens to
+contain busy blocks in some other format (decode's nil-guard is
+code-reviewed, not device-tested).
+
+**Next steps for whoever picks this up:**
+1. `git status` will show `EventQRCoding.swift`, `EventQRCodeView.swift`,
+   `EventDetailView.swift`, `ScanEventQRView.swift`,
+   `AvailabilityCompareView.swift` (new), and `project.pbxproj` modified
+   — review the diff, then commit and push.
+2. The "Shared-event time suggestions" idea further down this file can
+   probably be marked done/superseded by this, or narrowed to just the
+   remaining gap: this feature shows availability and lets the recipient
+   propose a time, but doesn't yet let the *owner* see or respond to a
+   proposal that comes back (the round trip currently ends at "recipient
+   saves an event on their own calendar" — there's no signal back to the
+   original owner that a time was picked, since there's still no backend
+   or push notifications).
+
 ## Session handoff — 2026-07-27 (yet still even later), read this first
 
 **Status: visually verified, builds clean, not committed yet.**
@@ -258,31 +363,33 @@ have to be redone. None of these block MVP — pick up only if time allows.
   camera) — flagged for a real-device check — but the decode → prefill →
   save path, including conflict detection against existing events, is
   fully verified via the paste fallback.
-- [ ] **Shared-event time suggestions.** Propose an event with someone
-  else (e.g. "Saturday" with your girlfriend) and have Keel suggest a
-  time that avoids both people's fixed commitments — e.g. you're booked
-  11am–1pm, she's booked 7–9pm, Keel suggests 3–5pm. Meaningfully bigger
-  lift than the two ideas above: since there's no backend, both
-  schedules can only meet via a **two-step peer-to-peer exchange**, not
-  a single share:
-  1. You share a draft event for a date, with a payload of just your
-     busy time-blocks that day (not full event details — how much to
-     expose is a privacy decision worth making deliberately).
-  2. Her Keel receives it, combines it with her own local events for
-     that day, and computes free windows avoiding both people's fixed
-     commitments — this should reuse/extend the existing conflict
-     engine (`ConflictEngine`/`SKILL.md` prioritization) generalized
-     from one schedule to two, rather than new logic from scratch.
-  3. She picks a slot and shares it back to confirm — a second
-     round-trip, since nothing syncs automatically without a server.
+- [x] **Shared-event time suggestions — step 1 of 2 done.** Built
+  2026-07-27 (see "latest" session handoff above) as "shared-event
+  availability": an opt-in, off-by-default checkbox shares the owner's
+  busy time-blocks (times only, never titles/details — a deliberate
+  privacy choice) alongside the event; the recipient's Keel shows both
+  schedules side by side, computes free windows, and lets them propose a
+  time, landing in the normal review-before-save form. This covers steps
+  1–2 of the two-step exchange originally sketched below (share
+  busy-blocks → compute free windows against the recipient's own
+  events). **Still open:** step 3 — there's no signal back to the
+  original owner when the recipient picks a time; the round trip
+  currently ends at "recipient saves an event on their own calendar."
+  Closing that gap needs either a second manual share-back (recipient
+  re-shares their chosen slot as a new QR/text, owner imports it the
+  same way) or, longer-term, a real sync layer — no backend exists yet,
+  so it'd stay peer-to-peer for now.
 
-  This is conceptually adjacent to "multi-user accounts" (excluded
-  below) but meaningfully different — per-event peer-to-peer sharing,
-  not persistent account/calendar syncing — so it doesn't actually
-  cross that line. It's also a strong thematic fit: it's "conflict
-  detection + prioritization" extended from one person to two, which is
-  Keel's hero differentiator per `CLAUDE.md`. Worth prototyping only if
-  the core single-user conflict engine is rock solid first.
+  Original framing, kept for context: propose an event with someone else
+  (e.g. "Saturday" with your girlfriend) and have Keel suggest a time
+  that avoids both people's fixed commitments — e.g. you're booked
+  11am–1pm, she's booked 7–9pm, Keel suggests 3–5pm. This is
+  conceptually adjacent to "multi-user accounts" (excluded below) but
+  meaningfully different — per-event peer-to-peer sharing, not
+  persistent account/calendar syncing — so it doesn't actually cross
+  that line. It's also a strong thematic fit: it's "conflict detection +
+  prioritization" extended from one person to two, which is Keel's hero
+  differentiator per `CLAUDE.md`.
 - [x] **Event categories + time-spent tracking.** Built 2026-07-26/27
   across three commits (category field, calendar filter, monthly
   breakdown screen) — see session handoffs above for verification

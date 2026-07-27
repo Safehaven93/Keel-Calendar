@@ -27,21 +27,12 @@ struct EventDetailView: View {
                     Button {
                         isShowingQRCode = true
                     } label: {
-                        Label("Share as QR Code", systemImage: "qrcode")
+                        Label("Share Event", systemImage: "square.and.arrow.up")
                             .font(.body.weight(.semibold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 4)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(Color("AccentColor"))
-
-                    ShareLink(item: EventQRCoding.shareText(for: event)) {
-                        Label("Share as Text", systemImage: "text.bubble")
-                            .font(.body.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 4)
-                    }
-                    .buttonStyle(.bordered)
                     .tint(Color("AccentColor"))
 
                     HStack(spacing: 12) {
@@ -68,7 +59,7 @@ struct EventDetailView: View {
             AddEditEventView(allEvents: allEvents, editing: event)
         }
         .sheet(isPresented: $isShowingQRCode) {
-            EventQRCodeView(event: event)
+            EventQRCodeView(event: event, allEvents: allEvents)
         }
     }
 

@@ -13,6 +13,7 @@ struct ScanEventQRView: View {
     @State private var pastedCode = ""
     @State private var draft: ScannedEventDraft?
     @State private var isShowingPrefillForm = false
+    @State private var isShowingAvailability = false
     @State private var showsInvalidCodeAlert = false
 
     var body: some View {
@@ -68,6 +69,11 @@ struct ScanEventQRView: View {
                     AddEditEventView(allEvents: allEvents, defaultDate: defaultDate, prefill: draft)
                 }
             }
+            .sheet(isPresented: $isShowingAvailability, onDismiss: { dismiss() }) {
+                if let draft {
+                    AvailabilityCompareView(draft: draft, allEvents: allEvents, defaultDate: defaultDate)
+                }
+            }
         }
     }
 
@@ -77,6 +83,10 @@ struct ScanEventQRView: View {
             return
         }
         draft = parsed
-        isShowingPrefillForm = true
+        if parsed.busyBlocks.isEmpty {
+            isShowingPrefillForm = true
+        } else {
+            isShowingAvailability = true
+        }
     }
 }
