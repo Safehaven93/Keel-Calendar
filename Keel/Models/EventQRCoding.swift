@@ -50,6 +50,24 @@ enum EventQRCoding {
         return lines.joined(separator: "\n")
     }
 
+    /// A human-readable summary with the same encoded block from
+    /// `encode(_:)` underneath — readable for anyone the text is shared
+    /// with, but a Keel recipient can still paste the whole message into
+    /// the scan screen's "paste a code" fallback and get it imported
+    /// directly, same as if they'd scanned the QR code.
+    static func shareText(for event: Event) -> String {
+        let dateLine = event.startDate.formatted(.dateTime.weekday(.wide).month().day())
+        let timeLine = "\(event.startDate.formatted(.dateTime.hour().minute()))–\(event.endDate.formatted(.dateTime.hour().minute()))"
+        var lines = [event.title, "\(dateLine) · \(timeLine)"]
+        if let location = event.location, !location.isEmpty {
+            lines.append(location)
+        }
+        lines.append("")
+        lines.append("Paste this into Keel's \u{201C}Scan Event QR\u{201D} screen to add it directly:")
+        lines.append(encode(event))
+        return lines.joined(separator: "\n")
+    }
+
     static func decode(_ text: String) -> ScannedEventDraft? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.contains("BEGIN:VEVENT"), trimmed.contains("END:VEVENT") else { return nil }

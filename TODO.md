@@ -2,9 +2,55 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
+## Session handoff — 2026-07-27 (yet still even later), read this first
+
+**Status: visually verified, builds clean, not committed yet.**
+Follow-up to QR sharing (already committed/pushed): added a "Share as
+Text" option next to "Share as QR Code" on the event detail screen.
+
+**What changed:**
+- `EventQRCoding.shareText(for:)` (new): a human-readable summary (title,
+  date, time, location if present) with the same encoded `VEVENT` block
+  from `encode(_:)` appended underneath. Anyone can read the summary;
+  a Keel recipient can also paste the whole shared message into the scan
+  screen's "paste a code" fallback and get the event imported directly
+  — same mechanism the QR code uses, just delivered as text instead of
+  an image.
+- `EventDetailView` gained a `ShareLink(item: EventQRCoding.shareText(for: event))`
+  button styled to match "Share as QR Code" (bordered instead of
+  prominent, so QR reads as the primary option and text as the
+  alternative) rather than opening a sheet first — `ShareLink` presents
+  the system share sheet directly since there's no intermediate image to
+  preview.
+
+**Verified via UI automation, with one small gap:** confirmed both
+buttons render correctly side by side. Tapped "Share as Text" — the
+system share sheet opened with a text-content preview correctly titled
+"Extra workout" (the event's title), with Copy/Save to Files/Reminders
+options, confirming it's sharing real content tied to the event and not
+empty/broken. **Could not verify the exact shared text byte-for-byte**:
+same tooling limitation as the wheel-picker and live-camera gaps in
+earlier handoffs — the accessibility-snapshot tool doesn't surface the
+native share sheet's contents at all here (unlike the wheel-picker case,
+it didn't crash, it just returns the screen underneath), so there was no
+element ref to tap "Copy" and read the clipboard back. Confidence is
+still high: `shareText` is a straightforward string built from two
+already-verified pieces — `encode(_:)` (thoroughly round-trip tested via
+the QR/paste-decode flow) and the same date-formatting pattern already
+used elsewhere in `EventDetailView`'s hero card.
+
+**Next steps for whoever picks this up:**
+1. `git status` will show `EventQRCoding.swift` and `EventDetailView.swift`
+   modified — review the diff, then commit and push.
+2. Optional, low-priority: if you want the byte-exact verification, the
+   quickest path is probably `xcrun simctl pbpaste` after manually
+   tapping Copy in the simulator (interactively, not via automation),
+   or just eyeball it on a real device alongside the other manual checks
+   already queued (live camera scan, foreign-QR-code handling).
+
 ## Session handoff — 2026-07-27 (still even later), read this first
 
-**Status: mostly verified, builds clean, not committed yet.** Built the
+**Status: committed.** Built the
 QR code event sharing feature from the brainstormed ideas list — first
 build, not an iteration on existing work.
 

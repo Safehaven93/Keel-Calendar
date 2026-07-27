@@ -35,6 +35,15 @@ struct EventDetailView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(Color("AccentColor"))
 
+                    ShareLink(item: EventQRCoding.shareText(for: event)) {
+                        Label("Share as Text", systemImage: "text.bubble")
+                            .font(.body.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(Color("AccentColor"))
+
                     HStack(spacing: 12) {
                         Button("Edit") { isEditing = true }
                             .buttonStyle(.bordered)
