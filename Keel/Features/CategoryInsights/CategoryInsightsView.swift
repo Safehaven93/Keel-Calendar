@@ -98,6 +98,7 @@ struct CategoryInsightsView: View {
                 Text("\(row.count) event\(row.count == 1 ? "" : "s")")
                     .font(.footnote)
                     .foregroundStyle(Color("TextSecondary"))
+                deltaLabel(row)
             }
             Spacer()
             Text(CategoryInsightsViewModel.formattedDuration(row.totalDuration))
@@ -107,5 +108,30 @@ struct CategoryInsightsView: View {
         .padding(16)
         .background(Color("Surface"))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    /// "New this month" when there's no prior-month data to compare
+    /// against; otherwise a signed duration delta vs. last month.
+    @ViewBuilder
+    private func deltaLabel(_ row: CategoryBreakdownRow) -> some View {
+        Group {
+            if let delta = row.durationDelta {
+                if delta == 0 {
+                    Text("No change vs last month")
+                        .foregroundStyle(Color("TextSecondary"))
+                } else {
+                    let isUp = delta > 0
+                    Label(
+                        "\(isUp ? "+" : "−")\(CategoryInsightsViewModel.formattedDuration(abs(delta))) vs last month",
+                        systemImage: isUp ? "arrow.up.right" : "arrow.down.right"
+                    )
+                    .foregroundStyle(isUp ? Color("AccentColor") : Color("TextSecondary"))
+                }
+            } else {
+                Text("New this month")
+                    .foregroundStyle(Color("AccentColor"))
+            }
+        }
+        .font(.caption)
     }
 }

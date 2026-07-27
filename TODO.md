@@ -2,60 +2,59 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-27 (later), read this first
+## Session handoff — 2026-07-27 (even later), read this first
 
-**Status: builds clean, mostly verified, not committed yet.** Follow-up
-to Category Insights (already committed/pushed): made the month label
-tappable so you can jump to any month directly, instead of only
-stepping one at a time via the chevrons.
+**Status: visually verified, builds clean, not committed yet.**
+Month-over-month comparison for Category Insights — the "natural next
+step" flagged in the previous handoff. Manually confirmed by the user
+that the wheel-scroll gap noted in that previous entry works correctly
+(scrolled + Done applied the new month), so that's no longer an open
+question.
 
 **What changed:**
-- New `MonthYearPickerView.swift` (in `Features/CategoryInsights/`) — a
-  small sheet with two `.wheel`-style `Picker`s (month name, year ±5 from
-  the current year), Cancel/Done toolbar buttons. Deliberately separate
-  from `MonthCalendarPicker` (which picks a specific *day* via a tap grid
-  and auto-dismisses on tap) — this only needs month granularity, and a
-  wheel is a continuous scroll gesture without a natural "this is the
-  selection" tap moment, so it keeps an explicit Done rather than
-  auto-dismissing.
-- `CategoryInsightsView`'s month label is now a `Button` (was plain
-  `Text`) that presents `MonthYearPickerView` as a sheet, bound to
-  `viewModel.displayedMonth` via a manual `Binding(get:set:)` since
-  `displayedMonth` lives on an `@Observable` view model, not a
-  `@Binding` property directly.
-- Added to `Keel.xcodeproj/project.pbxproj` by hand again (see the
-  reminder in the previous handoff entry below — still applies, this
-  project doesn't auto-include new files).
+- `CategoryBreakdownRow` gained `durationDelta: TimeInterval?` — nil
+  means the category had zero events last month (a "new" category this
+  month, not a meaningful comparison); otherwise this month's total
+  minus last month's, so negative means less time than last month.
+- `CategoryInsightsViewModel.rows(from:)` now tallies both the displayed
+  month and the prior month (`tally(_:for:)`, a small private helper —
+  same grouping logic, just parameterized by month instead of always
+  using `displayedMonth`), then computes each row's delta by matching
+  categories between the two tallies.
+- Deliberately scoped to **duration only**, not a second count-delta —
+  the interview insight was specifically about time ("am I overloading
+  one category"), and showing both count-delta and duration-delta per
+  card risked cluttering a card that's meant to be scannable at a
+  glance.
+- `CategoryInsightsView.breakdownCard` gained a `deltaLabel` subtitle:
+  "+1h 30m vs last month" / "−45m vs last month" (colored/arrowed by
+  direction — increase in `AccentColor` with an up-right arrow, decrease
+  in `TextSecondary` with a down-right arrow, deliberately not using
+  `ConflictColor` since a category simply taking more time isn't a
+  scheduling conflict and reusing that color would blur the meaning),
+  "No change vs last month" when the delta is exactly zero, or "New this
+  month" when there's no prior-month data for that category at all.
 
-**Verified via UI automation, with one gap:** confirmed the month label
-is tappable and opens "Jump to Month" pre-selected to the currently
-displayed month/year (checked at July 2026 initially, then again after
-navigating to September 2026 via the chevrons — picker correctly showed
-"September" / "2026" both times). **Could not verify the wheel-scroll →
-Done → month-changes path via automation**: the UI automation tool's
-accessibility-snapshot command (`axe`/`FBSimulatorControl`) crashes with
-an uncaught `NSInvalidArgumentException` (`-[__NSCFString translation]:
-unrecognized selector`) whenever it tries to walk the accessibility tree
-while a `.wheel`-style `Picker` is on screen — reproduced 3 times
-consistently, app itself never crashed (confirmed via screenshots taken
-instead of snapshots). This is a known-shape issue with `UIPickerView`
-accessibility introspection in this tooling, not an app bug. The Done
-handler is a standard `DateComponents` → `Calendar.date(from:)` call, low
-risk, but **whoever picks this up should do one quick manual check in
-the simulator/device**: open Insights, tap the month label, scroll both
-wheels to a different month/year, tap Done, confirm the header and
-breakdown update to match.
+**Verified via UI automation:** built a June-dated Exercise event
+alongside the existing July Exercise event (1h each) — confirmed July's
+Exercise card read "No change vs last month". Added a second July
+Exercise event (July now 2h vs June's 1h) — confirmed the card updated
+to "2h / 2 events / +1h vs last month" with the up-arrow styling.
+Confirmed categories with no prior-month data (Uncategorized, Family)
+correctly show "New this month" instead of a nonsensical delta from
+zero.
 
 **Next steps for whoever picks this up:**
-1. `git status` will show `MonthYearPickerView.swift` (new),
-   `CategoryInsightsView.swift`, and `Keel.xcodeproj/project.pbxproj`
-   modified — review the diff.
-2. Do the manual wheel-scroll check described above before considering
-   this fully verified, then commit and push.
-3. The "Event categories + time-spent tracking" feature (all three
-   original sub-pieces, plus this month-jump refinement) is otherwise
-   done. Next natural step per the original brainstorm is month-over-month
-   comparison — see the entry further below for the full plan.
+1. `git status` will show `CategoryInsightsViewModel.swift` and
+   `CategoryInsightsView.swift` modified — review the diff, then commit
+   and push.
+2. Not yet handled: a category with events *last* month but zero *this*
+   month currently just doesn't appear as a row at all (rows are still
+   built from the current month's events only), so a full drop-to-zero
+   isn't visible the way a partial decrease is. Worth deciding
+   deliberately if/when picked up — union-ing categories from both
+   months would show it, but changes what "No events this month." (the
+   empty-state message) means when only prior-month data exists.
 
 ## Session handoff — 2026-07-21 (still later evening), read this first
 
