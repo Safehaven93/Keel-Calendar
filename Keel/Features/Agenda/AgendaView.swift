@@ -14,6 +14,7 @@ struct AgendaView: View {
     @State private var editingEvent: Event?
     @State private var selectedDate = Calendar.current.startOfDay(for: .now)
     @State private var categoryFilter: EventCategory?
+    @State private var isShowingInsights = false
 
     private var viewModel: AgendaViewModel { AgendaViewModel(modelContext: modelContext) }
 
@@ -30,6 +31,15 @@ struct AgendaView: View {
                             .font(.title2.weight(.semibold))
                             .foregroundStyle(Color("TextPrimary"))
                         Spacer()
+                        Button {
+                            isShowingInsights = true
+                        } label: {
+                            Image(systemName: "chart.bar.fill")
+                                .foregroundStyle(Color("TextSecondary"))
+                                .padding(8)
+                                .background(Color("Surface"))
+                                .clipShape(Circle())
+                        }
                         categoryFilterMenu
                     }
                     .padding(.horizontal, 20)
@@ -66,6 +76,9 @@ struct AgendaView: View {
             }
             .sheet(item: $editingEvent) { event in
                 AddEditEventView(allEvents: events, editing: event)
+            }
+            .sheet(isPresented: $isShowingInsights) {
+                CategoryInsightsView(events: events, initialMonth: selectedDate)
             }
         }
     }

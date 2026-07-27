@@ -2,52 +2,61 @@
 
 Mapped to the MIS 676 course schedule so the code stays in step with the design process, not ahead of or behind it. Check items off as you go; add sub-tasks as they emerge — this file should stay honest about actual state, not aspirational state.
 
-## Session handoff — 2026-07-26 (later evening), read this first
+## Session handoff — 2026-07-27, read this first
 
 **Status: visually verified, builds clean, not committed yet.**
-Sub-piece 2 of "Event categories + time-spent tracking": filtering the
-calendar by category. Sub-piece 1 (the category field itself) is already
-committed/pushed. Sub-piece 3 (monthly time-spent breakdown) is still
-NOT started.
+Sub-piece 3 (final piece) of "Event categories + time-spent tracking":
+the monthly breakdown screen. Sub-pieces 1 (category field) and 2
+(calendar filter) are already committed/pushed — the whole feature is
+now built end to end.
 
 **What changed:**
-- `AgendaView` gained `@State private var categoryFilter: EventCategory?`
-  (`nil` = show everything) and a `Menu`-based filter control
-  (`categoryFilterMenu`) next to the "Agenda" header — a capsule showing
-  "All Categories" or the active category's name, matching the existing
-  chip/capsule visual language.
-- New `filteredEvents` computed property (`events`, or `events` filtered
-  to `categoryFilter` when set) now feeds the day list, the "what's
-  coming" preview, and — deliberately — the month-picker's busyness
-  shading and conflict-day badges too, so picking e.g. "Exercise" shades
-  the whole month by where exercise events actually land, not just the
-  currently-selected day's list. This was an explicit decision flagged in
-  the brainstormed plan below ("pick one deliberately, don't leave it
-  ambiguous") — chose "filter reflects everywhere" over "day list only."
-- Conflict-partner lookups (`conflictTitle`, `handleTap`) deliberately
-  keep reading the unfiltered `events` — a conflict is a real
-  relationship between two events regardless of which category is being
-  viewed, so filtering that out would break the conflict-resolution flow
-  rather than just hiding rows.
+- New `Features/CategoryInsights/` folder: `CategoryInsightsViewModel.swift`
+  (groups a month's events by category via `Dictionary(grouping:by:)`,
+  tallying both event count and total duration per category — including
+  an "Uncategorized" row for `category == nil`, so every event is
+  accounted for, not just tagged ones) and `CategoryInsightsView.swift`
+  (month header with prev/next chevrons, same pattern as
+  `MonthCalendarPicker`'s header; one card per category, sorted by total
+  duration descending).
+- Went with the **text/stat-list** presentation from the brainstormed
+  options in this file — cheapest to build, and the user confirmed
+  wanting both count *and* time per category rather than picking one,
+  which a plain list handles cleanly without needing a chart yet.
+  Bar/tile/chart options remain open for later if the list alone isn't
+  enough once there's real data in it.
+- Reachable via a new chart-icon button in `AgendaView`'s header row
+  (next to the category filter), opening `CategoryInsightsView` as a
+  sheet seeded with the currently-selected day's month.
+- Duration formatting via `DateComponentsFormatter` (`.abbreviated`,
+  hour/minute units) — e.g. "6h 30m", "1h".
+- New files had to be added to `Keel.xcodeproj/project.pbxproj` by hand
+  (`PBXBuildFile`/`PBXFileReference`/group entries + Sources build phase)
+  since this project doesn't use Xcode 16's file-system-synchronized
+  groups — new files in a folder aren't auto-included. Worth remembering
+  for any future new-file additions: a plain `Write` isn't enough, the
+  project file needs the matching entries too, or the build fails with
+  "cannot find X in scope" despite the file existing on disk.
 
-**Verified via UI automation:** built two test events on the same day —
-"Soccer practice" (Exercise) and "Baseball practice" (Family, after
-correcting a mid-session mis-tap that briefly put Exercise on the wrong
-event — worth noting only because it validated the filter logic itself
-was correct even while the *test data* was momentarily wrong). Opened
-the filter menu, confirmed all four options render with a checkmark on
-the active one. Selected "Exercise" — day list narrowed to just Soccer
-practice. Selected "Family" — narrowed to just Baseball practice.
-Selected "All Categories" — both reappeared. Filter capsule's label and
-tint update correctly in each case.
+**Verified via UI automation:** with "Baseball practice" (Family, 1h) and
+"Soccer practice" (Exercise, 1h) plus some older leftover uncategorized
+test events, opened Insights from the new header button — confirmed
+"July 2026" with three correctly-sorted cards: Uncategorized (17h / 6
+events), Exercise (1h / 1 event), Family (1h / 1 event). Tapped the
+back-chevron to June 2026 — confirmed "No events this month." renders
+correctly for an empty month. Returned to July, confirmed Done dismisses
+back to Agenda.
 
 **Next steps for whoever picks this up:**
-1. `git status` will show `AgendaView.swift` modified — review the diff,
-   then commit and push.
-2. Sub-piece 3 (monthly time-spent breakdown) is the only piece left —
-   see the full "Event categories + time-spent tracking" entry below for
-   the brainstormed UI options (text list, bar chart, stat tiles,
-   month-over-month comparison, passive summary).
+1. `git status` will show new files under `Keel/Features/CategoryInsights/`,
+   `AgendaView.swift`, and `Keel.xcodeproj/project.pbxproj` modified —
+   review the diff, then commit and push.
+2. The full "Event categories + time-spent tracking" feature (all three
+   sub-pieces) is now done. If picked back up, the natural next step per
+   the original brainstorm is month-over-month comparison (surfacing the
+   delta), which more directly serves the interviewed user's actual goal
+   of noticing an unintentional skew — the current single-month snapshot
+   is a solid foundation for that, not a dead end.
 
 ## Session handoff — 2026-07-21 (still later evening), read this first
 
@@ -191,8 +200,10 @@ have to be redone. None of these block MVP — pick up only if time allows.
   detection + prioritization" extended from one person to two, which is
   Keel's hero differentiator per `CLAUDE.md`. Worth prototyping only if
   the core single-user conflict engine is rock solid first.
-- [ ] **Event categories + time-spent tracking.** Likely picked up
-  tonight. **Research-grounded, not scope creep** — unlike the other
+- [x] **Event categories + time-spent tracking.** Built 2026-07-26/27
+  across three commits (category field, calendar filter, monthly
+  breakdown screen) — see session handoffs above for verification
+  details. **Research-grounded, not scope creep** — unlike the other
   ideas in this list, this one came directly out of a user interview: an
   end user wants a visual of where his time is actually going, to catch
   himself accidentally overloading one category without realizing it —
